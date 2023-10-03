@@ -1,9 +1,10 @@
-version: "3.8"
+version: "3.3"
 services:
   postgres:
     image: postgres:11.21-bullseye
     ports: 
-      - 5433:5432
+      - ${DB_PORT}:5432
     environment:
-      - POSTGRES_PASSWORD=mysecretpassword
-      - POSTGRES_DB=db_dana_shop
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
