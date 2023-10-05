@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	"starfish/app/user"
+	"starfish/cmd/domain/user"
 	"starfish/config"
 
 	"github.com/gin-gonic/gin"
