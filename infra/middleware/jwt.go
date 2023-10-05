@@ -21,9 +21,11 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		tokenString = tokenString[len("Bearer "):]
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("SECRET_KEY")), nil
 		})
+
 		if err != nil {
 			context.JSON(http.StatusUnauthorized, gin.H{
 				"success":    false,
