@@ -12,7 +12,11 @@ func JWTMiddleware() gin.HandlerFunc {
 		tokenString := context.GetHeader("Authorization")
 
 		if tokenString == "" {
-			context.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+			context.JSON(http.StatusUnauthorized, gin.H{
+				"success":    false,
+				"error_code": 40103,
+				"message":    "unauthorized",
+			})
 			context.Abort()
 			return
 		}
@@ -21,7 +25,11 @@ func JWTMiddleware() gin.HandlerFunc {
 			return []byte(os.Getenv("SECRET_KEY")), nil
 		})
 		if err != nil {
-			context.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+			context.JSON(http.StatusUnauthorized, gin.H{
+				"success":    false,
+				"error_code": 40103,
+				"message":    "unauthorized",
+			})
 			context.Abort()
 			return
 		}
@@ -30,7 +38,11 @@ func JWTMiddleware() gin.HandlerFunc {
 			context.Set("user", claims)
 			context.Next()
 		} else {
-			context.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+			context.JSON(http.StatusUnauthorized, gin.H{
+				"success":    false,
+				"error_code": 40103,
+				"message":    "unauthorized",
+			})
 			context.Abort()
 		}
 	}
