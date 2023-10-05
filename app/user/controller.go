@@ -22,30 +22,71 @@ func (u userController) SignUp(c *gin.Context) {
 	var request Register
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success":    false,
+			"error_code": 40004,
+			"message":    "invalid request"})
 		return
 	}
 
 	user, err := NewUser().FromRegisterToUser(request)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		customErr, ok := err.(*CustomError)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": 50003,
+				"message":    "internal error"})
+			return
+		}
+		c.JSON(customErr.StatusCode, gin.H{
+			"success":    false,
+			"error_code": customErr.ErrorCode,
+			"message":    customErr.Message})
 		return
+
 	}
 
 	var merchant Merchant
 
 	merchant, err = merchant.FromRegisterToMerchant(request)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		customErr, ok := err.(*CustomError)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": 50003,
+				"message":    "internal error"})
+			return
+		}
+		c.JSON(customErr.StatusCode, gin.H{
+			"success":    false,
+			"error_code": customErr.ErrorCode,
+			"message":    customErr.Message})
 		return
+
 	}
 
 	// Call the user registration service
 	if err := u.svc.Register(context.Background(), user, merchant); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		customErr, ok := err.(*CustomError)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success":    false,
+				"error_code": 50003,
+				"message":    "internal error"})
+			return
+		}
+		c.JSON(customErr.StatusCode, gin.H{
+			"success":    false,
+			"error_code": customErr.ErrorCode,
+			"message":    customErr.Message})
 		return
 	}
 
 	// Return a success response with the user ID
-	c.JSON(http.StatusCreated, gin.H{"messages": "success"})
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "create success",
+	})
 }

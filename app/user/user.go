@@ -1,8 +1,6 @@
 package user
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 	"time"
 
@@ -10,13 +8,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	ErrEmailEmpty     = errors.New("email is empty")
-	ErrEmailInvalid   = errors.New("email is invalid")
-	ErrPasswordEmpty  = errors.New("password is empty")
-	ErrPasswordLength = errors.New("password must be at least 8 characters")
-	ErrMerchantEmpty  = errors.New("merchant name is empty")
-)
+type CustomError struct {
+	ErrorCode  int
+	StatusCode int
+	Message    string
+}
+
+func (e *CustomError) Error() string {
+	return e.Message
+}
 
 type User struct {
 	Id        uuid.UUID `db:"id"`
@@ -49,24 +49,38 @@ func (u *User) HashPassword() (err error) {
 
 func (u User) FromRegisterToUser(req Register) (User, error) {
 	if req.Email == "" {
-		return u, ErrEmailEmpty
+		return u, &CustomError{
+			ErrorCode:  40001,
+			StatusCode: 400,
+			Message:    "invalid request",
+		}
 	}
 
 	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	regex := regexp.MustCompile(emailPattern)
 
-	fmt.Println(req.Email)
-
 	if !(regex.MatchString(req.Email)) {
-		return u, ErrEmailInvalid
+		return u, &CustomError{
+			ErrorCode:  40002,
+			StatusCode: 400,
+			Message:    "email is not valid",
+		}
 	}
 
 	if req.Password == "" {
-		return u, ErrPasswordEmpty
+		return u, &CustomError{
+			ErrorCode:  40001,
+			StatusCode: 400,
+			Message:    "invalid request",
+		}
 	}
 
 	if len(req.Password) < 8 {
-		return u, ErrPasswordLength
+		return u, &CustomError{
+			ErrorCode:  40003,
+			StatusCode: 400,
+			Message:    "password is not valid",
+		}
 	}
 
 	u.Email = req.Email
@@ -77,7 +91,11 @@ func (u User) FromRegisterToUser(req Register) (User, error) {
 
 func (m Merchant) FromRegisterToMerchant(req Register) (Merchant, error) {
 	if req.MerchantName == "" {
-		return m, ErrMerchantEmpty
+		return m, &CustomError{
+			ErrorCode:  40001,
+			StatusCode: 400,
+			Message:    "invalid request",
+		}
 	}
 	m.Name = req.MerchantName
 

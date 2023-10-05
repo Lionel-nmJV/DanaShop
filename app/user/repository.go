@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type Postgres struct {
@@ -18,11 +19,24 @@ func (p Postgres) CreateUser(ctx context.Context, tx *sqlx.Tx, user User) (uuid.
 
 	userSQL := `INSERT INTO "users" ("email", "password", "created_at" ) VALUES ($1, $2, now()) RETURNING id`
 	var userId uuid.UUID
-	userResult := tx.QueryRowContext(ctx, userSQL, user.Email, user.Password)
-
-	if err := userResult.Scan(&userId); err != nil {
-
-		return uuid.UUID{}, err
+	if err := tx.QueryRowContext(ctx, userSQL, user.Email, user.Password).
+		Scan(&userId); err != nil {
+		if pgErr, ok := err.(*pq.Error); ok {
+			// Check if it's a duplicate key violation error
+			if pgErr.Code == "23505" {
+				return uuid.UUID{}, &CustomError{
+					ErrorCode:  40901,
+					StatusCode: 409,
+					Message:    "email already exists",
+				}
+			} else {
+				return uuid.UUID{}, &CustomError{
+					ErrorCode:  50001,
+					StatusCode: 500,
+					Message:    "repository error",
+				}
+			}
+		}
 	}
 
 	return userId, nil
