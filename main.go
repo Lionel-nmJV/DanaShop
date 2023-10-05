@@ -1,11 +1,13 @@
 package main
 
 import (
+	"os"
+	"starfish/app/user"
+	"starfish/config"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"os"
-	"starfish/config"
 )
 
 func main() {
@@ -25,10 +27,13 @@ func main() {
 		Name: os.Getenv("DB_NAME"),
 	}
 
-	_, err = config.NewDB(DBConfig)
+	db, err := config.NewDB(DBConfig)
 	if err != nil {
 		panic(err)
 	}
+
+	// Set up user routes
+	user.SetupRoutes(server, db)
 
 	server.Run(":" + AppConfig.Port)
 }
