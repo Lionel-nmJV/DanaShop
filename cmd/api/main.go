@@ -2,8 +2,8 @@ package main
 
 import (
 	"os"
-	"starfish/cmd/domain/user"
 	"starfish/config"
+	"starfish/domain/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
