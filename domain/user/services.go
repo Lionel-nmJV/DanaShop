@@ -73,18 +73,16 @@ func (u UserService) Register(ctx context.Context, user User, merchant Merchant)
 func (u UserService) login(ctx context.Context, userLogin User) (res LoginResponse, err error) {
 
 	userDb, err := u.repo.GetUserByEmail(ctx, u.db, userLogin.Email)
-
 	if err != nil {
 		return LoginResponse{}, err
 	}
 
-	ok, err := userLogin.ValidatePasswordFromPlainText(userDb)
-
+	ok, err := userDb.ValidatePasswordFromPlainText(userLogin)
 	if !ok {
 		return LoginResponse{}, err
 	}
 
-	AccessToken, errToken := userLogin.CreateToken()
+	AccessToken, errToken := userDb.CreateToken()
 	if err != nil {
 		return LoginResponse{}, errToken
 	}

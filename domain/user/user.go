@@ -51,10 +51,6 @@ func (u User) FromRegisterToUser(req Register) (User, error) {
 		return u, NewCustomError(40002, 400, "email is not valid")
 	}
 
-	if req.Password == "" {
-		return u, NewCustomError(40001, 400, "invalid request")
-	}
-
 	if len(req.Password) < 8 {
 		return u, NewCustomError(40003, 400, "password is not valid")
 	}
@@ -87,10 +83,6 @@ func (u User) FromLogin(req Login) (User, error) {
 		return u, NewCustomError(40002, 400, "email is not valid")
 	}
 
-	if req.Password == "" {
-		return u, NewCustomError(40001, 400, "invalid request")
-	}
-
 	if len(req.Password) < 8 {
 		return u, NewCustomError(40003, 400, "password is not valid")
 	}
@@ -101,8 +93,8 @@ func (u User) FromLogin(req Login) (User, error) {
 
 }
 
-func (u User) ValidatePasswordFromPlainText(userDb User) (ok bool, err error) {
-	errCompare := bcrypt.CompareHashAndPassword([]byte(userDb.Password), []byte(u.Password))
+func (u User) ValidatePasswordFromPlainText(userLogin User) (ok bool, err error) {
+	errCompare := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(userLogin.Password))
 	if errCompare != nil {
 		return ok, NewCustomError(40102, 401, "email or password invalid")
 	}
@@ -111,7 +103,6 @@ func (u User) ValidatePasswordFromPlainText(userDb User) (ok bool, err error) {
 }
 
 func (u User) CreateToken() (string, error) {
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": u.Id,
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
