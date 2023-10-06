@@ -2,7 +2,6 @@ package product
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jmoiron/sqlx"
 	"starfish/domain/merchant"
@@ -11,10 +10,15 @@ import (
 
 type productRepository interface {
 	readProductRepo
+	writeProductRepo
 }
 
 type readProductRepo interface {
 	findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchantID string, query string, limit interface{}, offset int) ([]productResponses, error)
+}
+
+type writeProductRepo interface {
+	saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product) (string, error)
 }
 
 type MerchantRepository interface {
@@ -29,15 +33,13 @@ type productService struct {
 	repoProduct  productRepository
 	RepoMerchant MerchantRepository
 	db           *sqlx.DB
-	validate     *validator.Validate
 }
 
-func newService(repoProduct productRepository, repoMerchant MerchantRepository, db *sqlx.DB, validate *validator.Validate) productService {
+func newService(repoProduct productRepository, repoMerchant MerchantRepository, db *sqlx.DB) productService {
 	return productService{
 		repoProduct:  repoProduct,
 		RepoMerchant: repoMerchant,
 		db:           db,
-		validate:     validate,
 	}
 }
 
@@ -92,4 +94,38 @@ func (service productService) findAllByMerchantID(ctx *gin.Context) (paginatePro
 	}
 
 	return responsePaginate, nil
+}
+
+func (service productService) addProduct(ctx *gin.Context, request Product) error {
+	userClaims := ctx.MustGet("user").(jwt.MapClaims)
+	userID := userClaims["user_id"].(string)
+
+	tx, err := service.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	merchantFounded, err := service.RepoMerchant.FindByUserID(ctx, tx, userID)
+	if err != nil {
+		return err
+	}
+
+	request.MerchantID = merchantFounded.ID
+
+	_, err = service.repoProduct.saveProduct(ctx, tx, request)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
