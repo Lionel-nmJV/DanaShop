@@ -18,14 +18,10 @@ func NewController(svc UserService) userController {
 }
 
 func (u userController) SignUp(c *gin.Context) {
-	// Parse the registration request JSON from the request body
 	var request Register
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success":    false,
-			"error_code": 40004,
-			"message":    "invalid request"})
+		writeError(c, "invalid request", 40004, 400)
 		return
 	}
 
@@ -33,16 +29,10 @@ func (u userController) SignUp(c *gin.Context) {
 	if err != nil {
 		customErr, ok := err.(*CustomError)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success":    false,
-				"error_code": 50003,
-				"message":    "internal error"})
+			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
 		}
-		c.JSON(customErr.StatusCode, gin.H{
-			"success":    false,
-			"error_code": customErr.ErrorCode,
-			"message":    customErr.Message})
+		writeError(c, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
 		return
 
 	}
@@ -53,40 +43,59 @@ func (u userController) SignUp(c *gin.Context) {
 	if err != nil {
 		customErr, ok := err.(*CustomError)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success":    false,
-				"error_code": 50003,
-				"message":    "internal error"})
+			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
 		}
-		c.JSON(customErr.StatusCode, gin.H{
-			"success":    false,
-			"error_code": customErr.ErrorCode,
-			"message":    customErr.Message})
+		writeError(c, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
 		return
 
 	}
 
-	// Call the user registration service
 	if err := u.svc.Register(context.Background(), user, merchant); err != nil {
 		customErr, ok := err.(*CustomError)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success":    false,
-				"error_code": 50003,
-				"message":    "internal error"})
+			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
 		}
-		c.JSON(customErr.StatusCode, gin.H{
-			"success":    false,
-			"error_code": customErr.ErrorCode,
-			"message":    customErr.Message})
+		writeError(c, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
 		return
 	}
 
-	// Return a success response with the user ID
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
 		"message": "create success",
 	})
+}
+
+func (u userController) SignIn(c *gin.Context) {
+	var request Login
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		writeError(c, "invalid request", 40004, 400)
+		return
+	}
+
+	userLogin, err := NewUser().FromLogin(request)
+	if err != nil {
+		customErr, ok := err.(*CustomError)
+		if !ok {
+			writeError(c, "internal error", 50003, http.StatusInternalServerError)
+			return
+		}
+		writeError(c, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
+		return
+
+	}
+
+	data, err := u.svc.login(context.Background(), userLogin)
+	if err != nil {
+		customErr, ok := err.(*CustomError)
+		if !ok {
+			writeError(c, "internal error", 50003, http.StatusInternalServerError)
+			return
+		}
+		writeError(c, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
+		return
+	}
+	writeSuccess(c, data, http.StatusOK)
 }
