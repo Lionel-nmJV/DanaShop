@@ -18,7 +18,7 @@ func NewPostgres() Postgres {
 
 func (p Postgres) CreateUser(ctx context.Context, tx *sqlx.Tx, user User) (uuid.UUID, error) {
 
-	userSQL := `INSERT INTO "users" ("email", "password", "created_at", "updated_at") VALUES ($1, $2, now(), now()) RETURNING id`
+	userSQL := `INSERT INTO "users" ("email", "password", "created_at", "updated_at","roles" ) VALUES ($1, $2, now(), now(),'merchant') RETURNING id`
 	var userId uuid.UUID
 	if err := tx.QueryRowContext(ctx, userSQL, user.Email, user.Password).
 		Scan(&userId); err != nil {
@@ -51,7 +51,7 @@ func (p Postgres) CreateMerchant(ctx context.Context, tx *sqlx.Tx, merchant Merc
 }
 
 func (p Postgres) GetUserByEmail(ctx context.Context, db *sqlx.DB, email string) (User, error) {
-	userSQL := `SELECT * FROM users WHERE email = $1`
+	userSQL := `SELECT id, email, password, created_at, updated_at FROM users WHERE email = $1 and roles='merchant'`
 	var user User
 	err := db.QueryRowContext(ctx, userSQL, email).
 		Scan(&user.Id, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)

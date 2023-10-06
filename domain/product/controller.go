@@ -1,25 +1,55 @@
 package product
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
 type productController struct {
-	service productService
+	service  productService
+	validate *validator.Validate
 }
 
-func newController(service productService) productController {
-	return productController{service: service}
+func newController(service productService, validate *validator.Validate) productController {
+	return productController{service: service, validate: validate}
 }
 
-func (controller productController) findAllByMerchantID(ctx *gin.Context) {
+func (c productController) findAllByMerchantID(ctx *gin.Context) {
 
-	products, err := controller.service.findAllByMerchantID(ctx)
+	products, err := c.service.findAllByMerchantID(ctx)
 	if err != nil {
 		writeError(ctx, err, 40401, http.StatusNotFound)
 		return
 	}
 
 	writeSuccess(ctx, products, http.StatusOK)
+}
+
+func (c productController) addProduct(ctx *gin.Context) {
+	var request createRequest
+
+	err := ctx.ShouldBindJSON(&request)
+	if err != nil {
+		writeError(ctx, errors.New("invalid request"), 40001, http.StatusBadRequest)
+		return
+	}
+
+	product, err := NewProduct().formAddProduct(request, c.validate)
+	if err != nil {
+		writeError(ctx, err, 40001, http.StatusBadRequest)
+		return
+	}
+
+	err = c.service.addProduct(ctx, product)
+	if err != nil {
+		writeError(ctx, err, 40001, http.StatusBadRequest)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "create success",
+	})
 }
