@@ -1,6 +1,7 @@
 package product
 
 import (
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"time"
 )
@@ -24,7 +25,7 @@ func NewProduct() Product {
 func (p Product) formAddProduct(request createRequest, validate *validator.Validate) (Product, error) {
 	err := validate.Struct(request)
 	if err != nil {
-		return p, err
+		return p, errors.New("invalid request")
 	}
 	p.Name = request.Name
 	p.Category = request.Category
