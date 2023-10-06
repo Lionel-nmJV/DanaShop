@@ -93,3 +93,19 @@ func (service productService) findAllByMerchantID(ctx *gin.Context) (paginatePro
 
 	return responsePaginate, nil
 }
+
+// New methods for update and delete product
+
+/*func (service productService) updateProduct(ctx *gin.Context, product *Product) error {
+	// Logic in here
+	// Validation or Business Rules
+	return service.repoProduct.update(product) // Update method in productRepository
+}
+
+func (service productService) deleteProduct(ctx *gin.Context, productID string) error {
+	// Logic in here
+	// Validation or Business Rules
+	return service.repoProduct.delete(productID) // Delete method in productRepository
+} */
+
+// sedang dicari
