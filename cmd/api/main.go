@@ -1,13 +1,13 @@
 package main
 
 import (
-	"os"
-	"starfish/app/user"
-	"starfish/config"
-
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"os"
+	"starfish/config"
+	"starfish/domain/product"
+	"starfish/domain/user"
 )
 
 func main() {
@@ -31,6 +31,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	api := server.Group("/api")
+
+	// product routes
+	product.Run(api, db)
 
 	// Set up user routes
 	user.SetupRoutes(server, db)
