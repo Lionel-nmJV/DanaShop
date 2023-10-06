@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
@@ -17,7 +16,6 @@ func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchant
 	SQL := `SELECT "name", "category", "price", "stock", "image_url" FROM "products" WHERE "merchant_id"=$1 AND "name"  ILIKE CONCAT('%', $2::text, '%') LIMIT $3 OFFSET $4`
 	rows, err := tx.QueryContext(ctx, SQL, merchantID, query, limit, offset)
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -34,4 +32,19 @@ func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchant
 	}
 
 	return products, nil
+}
+
+func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product) (string, error) {
+	SQL := `INSERT INTO "products"("merchant_id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	var lastInsertID string
+	result := tx.QueryRowContext(ctx, SQL, product.MerchantID, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.CreatedAt, product.UpdatedAt)
+
+	err := result.Scan(&lastInsertID)
+	if err != nil {
+		return lastInsertID, err
+	}
+
+	product.ID = lastInsertID
+
+	return lastInsertID, nil
 }

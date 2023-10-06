@@ -19,3 +19,11 @@ type productResponses struct {
 	Stock    int     `json:"stock"`
 	ImageURL string  `json:"image_url"`
 }
+
+type createRequest struct {
+	Name     string  `json:"name"validate:"required"`
+	Category string  `json:"category"validate:"required"`
+	Stock    int     `json:"stock"validate:"required"`
+	ImageURL string  `json:"image_url"validate:"required"`
+	Price    float64 `json:"price"validate:"required"`
+}
