@@ -14,17 +14,11 @@ type Repository interface {
 
 type UserRepository interface {
 	CreateUser(ctx context.Context, tx *sqlx.Tx, user User) (userId uuid.UUID, err error)
+	GetUserByEmail(ctx context.Context, db *sqlx.DB, email string) (user User, err error)
 }
 
 type MerchantRepository interface {
 	CreateMerchant(ctx context.Context, tx *sqlx.Tx, merchant Merchant) (err error)
-}
-
-type Transaction interface {
-	Begin(ctx context.Context) error
-	Rollback(ctx context.Context) error
-	Commit(ctx context.Context) error
-	CommitOrRollback(ctx context.Context, err error) error
 }
 
 type UserService struct {
@@ -76,21 +70,25 @@ func (u UserService) Register(ctx context.Context, user User, merchant Merchant)
 	return
 }
 
-// func (a authService) login(ctx context.Context, req Auth) (item Auth, err error) {
-// 	auth, err := a.repo.findByEmail(ctx, req.Email)
-// 	if err != nil {
-// 		return
-// 	}
+func (u UserService) login(ctx context.Context, userLogin User) (res LoginResponse, err error) {
 
-// 	ok, err := auth.ValidatePasswordFromPlainText(req.Password)
-// 	if err != nil {
-// 		return req, err
-// 	}
+	userDb, err := u.repo.GetUserByEmail(ctx, u.db, userLogin.Email)
 
-// 	if !ok {
-// 		return req, ErrInvalidPassword
-// 	}
+	if err != nil {
+		return LoginResponse{}, err
+	}
 
-// 	return auth, nil
+	ok, err := userLogin.ValidatePasswordFromPlainText(userDb)
 
-// }
+	if !ok {
+		return LoginResponse{}, err
+	}
+
+	AccessToken, errToken := userLogin.CreateToken()
+	if err != nil {
+		return LoginResponse{}, errToken
+	}
+
+	return LoginResponse{AccessToken}, nil
+
+}
