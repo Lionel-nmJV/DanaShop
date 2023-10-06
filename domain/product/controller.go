@@ -1,6 +1,7 @@
 package product
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -31,7 +32,7 @@ func (c productController) addProduct(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&request)
 	if err != nil {
-		writeError(ctx, err, 40001, http.StatusBadRequest)
+		writeError(ctx, errors.New("invalid request"), 40001, http.StatusBadRequest)
 		return
 	}
 
