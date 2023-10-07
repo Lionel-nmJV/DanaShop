@@ -12,4 +12,5 @@ func SetupRoutes(router *gin.Engine, db *sqlx.DB) {
 	ctl := NewController(svc)
 
 	router.POST("/signup", ctl.SignUp)
+	router.POST("/signin", ctl.SignIn)
 }

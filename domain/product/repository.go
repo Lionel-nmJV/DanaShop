@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
@@ -22,7 +21,6 @@ func (r *ProductRepositoryImpl) FindAllByMerchantID(ctx *gin.Context, merchantID
 	SQL := `SELECT "id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at" FROM "products" WHERE "merchant_id"=$1 AND "name" ILIKE '%' || $2 || '%' LIMIT $3 OFFSET $4`
 	rows, err := r.db.QueryContext(ctx, SQL, merchantID, query, limit, offset)
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -41,22 +39,17 @@ func (r *ProductRepositoryImpl) FindAllByMerchantID(ctx *gin.Context, merchantID
 	return products, nil
 }
 
-// Update updates a product's details in the database.
-func (r *ProductRepositoryImpl) update(product *Product) error {
-	// Implement database update operation for the product
-	// Use the product.ID to identify the product to update
-	_, err := r.db.Exec("UPDATE products SET name=$1, category=$2, price=$3, stock=$4, image_url=$5, updated_at=$6 WHERE id=$7", product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.UpdatedAt, product.ID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product) (string, error) {
+	SQL := `INSERT INTO "products"("merchant_id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	var lastInsertID string
+	result := tx.QueryRowContext(ctx, SQL, product.MerchantID, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.CreatedAt, product.UpdatedAt)
 
-func (r *ProductRepositoryImpl) delete(id string) error {
-	// Implement database delete operation for the product
-	_, err := r.db.Exec("DELETE FROM products WHERE id=$1", id)
+	err := result.Scan(&lastInsertID)
 	if err != nil {
-		return err
+		return lastInsertID, err
 	}
-	return nil
+
+	product.ID = lastInsertID
+
+	return lastInsertID, nil
 }

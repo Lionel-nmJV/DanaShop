@@ -1,21 +1,24 @@
 package product
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
 type productController struct {
-	service productService
+	service  productService
+	validate *validator.Validate
 }
 
-func newController(service productService) productController {
-	return productController{service: service}
+func newController(service productService, validate *validator.Validate) productController {
+	return productController{service: service, validate: validate}
 }
 
-func (controller productController) findAllByMerchantID(ctx *gin.Context) {
+func (c productController) findAllByMerchantID(ctx *gin.Context) {
 
-	products, err := controller.service.findAllByMerchantID(ctx)
+	products, err := c.service.findAllByMerchantID(ctx)
 	if err != nil {
 		writeError(ctx, err, 40401, http.StatusNotFound)
 		return
@@ -24,40 +27,29 @@ func (controller productController) findAllByMerchantID(ctx *gin.Context) {
 	writeSuccess(ctx, products, http.StatusOK)
 }
 
-func (controller productController) updateProduct1(ctx *gin.Context) {
-	var product Product
-	if err := ctx.BindJSON(&product); err != nil {
+func (c productController) addProduct(ctx *gin.Context) {
+	var request createRequest
+
+	err := ctx.ShouldBindJSON(&request)
+	if err != nil {
+		writeError(ctx, errors.New("invalid request"), 40001, http.StatusBadRequest)
+		return
+	}
+
+	product, err := NewProduct().formAddProduct(request, c.validate)
+	if err != nil {
 		writeError(ctx, err, 40001, http.StatusBadRequest)
 		return
 	}
 
-	if err := controller.service.updateProduct(ctx, &product); err != nil {
-		writeError(ctx, err, 50001, http.StatusInternalServerError)
+	err = c.service.addProduct(ctx, product)
+	if err != nil {
+		writeError(ctx, err, 40001, http.StatusBadRequest)
 		return
 	}
 
-	writeSuccess(ctx, "Product updated successfully", http.StatusOK)
-}
-
-func (controller productController) deleteProduct1(ctx *gin.Context) {
-	productID := ctx.Param("id")
-
-	if err := controller.service.deleteProduct(ctx, productID); err != nil {
-		writeError(ctx, err, 50002, http.StatusInternalServerError)
-		return
-	}
-
-	writeSuccess(ctx, "Product deleted successfully", http.StatusOK)
-}
-
-func writeError1(ctx *gin.Context, err error, errorCode int, statusCode int) {
-	// Implement error response handling here
-	// You can format the error message and status code as needed
-	ctx.JSON(statusCode, gin.H{"error": err.Error(), "code": errorCode})
-}
-
-func writeSuccess1(ctx *gin.Context, data interface{}, statusCode int) {
-	// Implement success response handling here
-	// You can format the response data and status code as needed
-	ctx.JSON(statusCode, data)
+	ctx.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "create success",
+	})
 }
