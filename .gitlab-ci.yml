@@ -61,4 +61,4 @@ deploy-phoenix-prod:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish && docker compose config && docker compose -f docker-compose.prod.yaml up -d" 
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish && docker compose  -f docker-compose.prod.yaml config && docker compose -f docker-compose.prod.yaml up -d" 
