@@ -38,7 +38,7 @@ build-phoenix-prod:
   image: docker:latest
   stage: build
   only:
-    - tags
+    - master
   services:
     - docker:dind
   before_script:
@@ -51,7 +51,7 @@ deploy-phoenix-prod:
   stage: deploy
   image: alpine:latest
   only: 
-    - tags
+    - master
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
     - mkdir -p ~/.ssh
