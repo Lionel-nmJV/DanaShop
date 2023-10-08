@@ -9,7 +9,8 @@ build-phoenix-dev:
   image: docker:latest
   stage: build
   only:
-    - ^starfish-.*-alpha$
+    - tags
+    - /^starfish-.*-alpha$/
   services:
     - docker:dind
   before_script:
@@ -22,7 +23,8 @@ deploy-phoenix-dev:
   stage: deploy
   image: alpine:latest
   only: 
-    - ^starfish-.*-alpha$
+    - tags
+    - /^starfish-.*-alpha$/
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
     - mkdir -p ~/.ssh
