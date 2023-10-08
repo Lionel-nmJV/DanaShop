@@ -9,7 +9,6 @@ build-phoenix-dev:
   image: docker:latest
   stage: build
   only:
-    - tags
     - /^starfish-.*-alpha$/
   services:
     - docker:dind
