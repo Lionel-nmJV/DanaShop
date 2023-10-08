@@ -2,27 +2,27 @@ stages:
   - build
   - deploy
 
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
 
 build-phoenix-dev:
   image: docker:latest
   stage: build
   only:
-    - development
-    - feat/infra-65
+    - ^starfish-.*-alpha$
   services:
     - docker:dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - docker build -f deploy/Dockerfile -t $CI_REGISTRY_IMAGE .
-    - docker push $CI_REGISTRY_IMAGE
+    - docker build -f deploy/Dockerfile -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
 
 deploy-phoenix-dev:
   stage: deploy
   image: alpine:latest
   only: 
-    - development
-    - feat/infra-65
+    - ^starfish-.*-alpha$
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
     - mkdir -p ~/.ssh
@@ -32,7 +32,7 @@ deploy-phoenix-dev:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $CI_REGISTRY_IMAGE" 
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG" 
 
 build-phoenix-prod:
   image: docker:latest
