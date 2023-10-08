@@ -32,26 +32,26 @@ deploy-phoenix-dev:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish && docker compose config && docker compose up -d" 
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish && docker compose config && docker compose -f docker-compose.yaml up -d" 
 
 build-phoenix-prod:
   image: docker:latest
   stage: build
   only:
-    - master
+    - /^starfish-.*-prod$/
   services:
     - docker:dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - docker build -f deploy/Dockerfile -t $CI_REGISTRY_IMAGE .
-    - docker push $CI_REGISTRY_IMAGE
+    - docker build -f deploy/Dockerfile -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
 
 deploy-phoenix-prod:
   stage: deploy
   image: alpine:latest
   only: 
-    - master
+    - /^starfish-.*-prod$/
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
     - mkdir -p ~/.ssh
@@ -61,4 +61,4 @@ deploy-phoenix-prod:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "ssh $SSH_PROD_USER@$SERVER_PROD 'export CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && cd phoenix && docker-compose down && docker rm -f phoenix && docker rmi $CI_REGISTRY_IMAGE  && docker-compose --env-file .env up -d --force-recreate' "
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish && docker compose config && docker compose -f docker-compose.prod.yaml up -d" 
