@@ -22,6 +22,7 @@ deploy-phoenix-dev:
   image: alpine:latest
   only: 
     - development
+    - feat/infra-65
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
     - mkdir -p ~/.ssh
@@ -31,7 +32,7 @@ deploy-phoenix-dev:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && cd phoenix && docker-compose down && docker rm -f phoenix && docker rmi $CI_REGISTRY_IMAGE && docker-compose --env-file .env up -d --force-recreate" 
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull origin $CI_REGISTRY_IMAGE" 
 
 build-phoenix-prod:
   image: docker:latest
