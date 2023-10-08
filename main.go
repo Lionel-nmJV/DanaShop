@@ -1,11 +1,13 @@
 package main
 
 import (
+	"log"
+	"os"
+	"starfish/config"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"os"
-	"starfish/config"
 )
 
 func main() {
@@ -13,7 +15,7 @@ func main() {
 
 	err := godotenv.Load(".env")
 	if err != nil {
-		panic(err)
+		log.Println("no env file provided")
 	}
 
 	AppConfig := config.AppConfig{Port: os.Getenv("APP_PORT")}

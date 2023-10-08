@@ -12,7 +12,7 @@ services:
       - postgres
 
   starfish:
-    image: starfish:1.0
+    image: starfish:3.0
     ports: 
       - 127.0.0.1:8000:3000
     environment:
