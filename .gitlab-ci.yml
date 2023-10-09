@@ -32,7 +32,7 @@ deploy-starfish-dev:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish/dev && docker compose config && docker compose -f docker-compose.yaml down" 
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish/dev && docker compose config && docker compose -f docker-compose.yaml up -d" 
 
 build-starfish-prod:
   image: docker:latest
@@ -51,7 +51,6 @@ deploy-starfish-prod:
   stage: deploy
   image: alpine:latest
   only: 
-    - feat/infra-65
     - /^starfish-.*-prod$/
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
@@ -62,4 +61,4 @@ deploy-starfish-prod:
     - ssh-add ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && cd starfish/prod && docker compose  -f docker-compose.prod.yaml config && docker compose -f docker-compose.prod.yaml down" 
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish/prod && docker compose  -f docker-compose.prod.yaml config && docker compose -f docker-compose.prod.yaml up -d" 
