@@ -4,7 +4,7 @@ WORKDIR /apps
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o starfish ./main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o starfish ./cmd/api/main.go
 
 FROM scratch
 
