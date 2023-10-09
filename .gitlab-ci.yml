@@ -9,6 +9,7 @@ build-starfish-dev:
   image: docker:latest
   stage: build
   only:
+    - feat/infra-65
     - /^starfish-.*-alpha$/
   services:
     - docker:dind
@@ -51,6 +52,7 @@ deploy-starfish-prod:
   stage: deploy
   image: alpine:latest
   only: 
+    - feat/infra-65
     - /^starfish-.*-prod$/
   before_script:
     - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
