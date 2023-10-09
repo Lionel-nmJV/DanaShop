@@ -5,7 +5,7 @@ stages:
 variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
 
-build-phoenix-dev:
+build-starfish-dev:
   image: docker:latest
   stage: build
   only:
@@ -18,7 +18,7 @@ build-phoenix-dev:
     - docker build -f deploy/Dockerfile -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
 
-deploy-phoenix-dev:
+deploy-starfish-dev:
   stage: deploy
   image: alpine:latest
   only: 
@@ -34,7 +34,7 @@ deploy-phoenix-dev:
   script:
     - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_RUNNER "export CI_REGISTRY_IMAGE=$IMAGE_TAG && docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY && docker pull $IMAGE_TAG && cd starfish/dev && docker compose config && docker compose -f docker-compose.yaml up -d" 
 
-build-phoenix-prod:
+build-starfish-prod:
   image: docker:latest
   stage: build
   only:
@@ -47,7 +47,7 @@ build-phoenix-prod:
     - docker build -f deploy/Dockerfile -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
 
-deploy-phoenix-prod:
+deploy-starfish-prod:
   stage: deploy
   image: alpine:latest
   only: 
