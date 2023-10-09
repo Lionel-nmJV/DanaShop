@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"starfish/config"
 	"starfish/domain/product"
@@ -16,7 +17,8 @@ func main() {
 
 	err := godotenv.Load(".env")
 	if err != nil {
-		panic(err)
+		// panic(err)
+		log.Println("no env provided")
 	}
 
 	AppConfig := config.AppConfig{Port: os.Getenv("APP_PORT")}
