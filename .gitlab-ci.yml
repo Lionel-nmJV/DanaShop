@@ -9,7 +9,6 @@ build-starfish-dev:
   image: docker:latest
   stage: build
   only:
-    - feat/infra-65
     - /^starfish-.*-alpha$/
   services:
     - docker:dind
