@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log"
 	"os"
 	"starfish/config"
+	"starfish/domain/product"
+	"starfish/domain/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -15,7 +16,7 @@ func main() {
 
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Println("no env file provided")
+		panic(err)
 	}
 
 	AppConfig := config.AppConfig{Port: os.Getenv("APP_PORT")}
@@ -27,10 +28,18 @@ func main() {
 		Name: os.Getenv("DB_NAME"),
 	}
 
-	_, err = config.NewDB(DBConfig)
+	db, err := config.NewDB(DBConfig)
 	if err != nil {
 		panic(err)
 	}
+
+	api := server.Group("/api")
+
+	// product routes
+	product.Run(api, db)
+
+	// Set up user routes
+	user.SetupRoutes(server, db)
 
 	server.Run(":" + AppConfig.Port)
 }
