@@ -25,11 +25,11 @@ type Merchant struct {
 	Name   string    `db:"name"`
 }
 
-func NewUser() User {
+func newUser() User {
 	return User{}
 }
 
-func (u *User) HashPassword() (err error) {
+func (u *User) hashPassword() (err error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -39,20 +39,20 @@ func (u *User) HashPassword() (err error) {
 	return
 }
 
-func (u User) FromRegisterToUser(req Register) (User, error) {
+func (u User) fromRegisterToUser(req register) (User, error) {
 	if req.Email == "" {
-		return u, NewCustomError(40001, 400, "invalid request")
+		return u, newCustomError(40001, 400, "invalid request")
 	}
 
 	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	regex := regexp.MustCompile(emailPattern)
 
 	if !(regex.MatchString(req.Email)) {
-		return u, NewCustomError(40002, 400, "email is not valid")
+		return u, newCustomError(40002, 400, "email is not valid")
 	}
 
 	if len(req.Password) < 8 {
-		return u, NewCustomError(40003, 400, "password is not valid")
+		return u, newCustomError(40003, 400, "password is not valid")
 	}
 
 	u.Email = req.Email
@@ -61,9 +61,9 @@ func (u User) FromRegisterToUser(req Register) (User, error) {
 
 }
 
-func (m Merchant) FromRegisterToMerchant(req Register) (Merchant, error) {
+func (m Merchant) FromRegisterToMerchant(req register) (Merchant, error) {
 	if req.MerchantName == "" {
-		return m, NewCustomError(40001, 400, "invalid request")
+		return m, newCustomError(40001, 400, "invalid request")
 	}
 	m.Name = req.MerchantName
 
@@ -71,20 +71,20 @@ func (m Merchant) FromRegisterToMerchant(req Register) (Merchant, error) {
 
 }
 
-func (u User) FromLogin(req Login) (User, error) {
+func (u User) FromLogin(req login) (User, error) {
 	if req.Email == "" {
-		return u, NewCustomError(40001, 400, "invalid request")
+		return u, newCustomError(40001, 400, "invalid request")
 	}
 
 	emailPattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	regex := regexp.MustCompile(emailPattern)
 
 	if !(regex.MatchString(req.Email)) {
-		return u, NewCustomError(40002, 400, "email is not valid")
+		return u, newCustomError(40002, 400, "email is not valid")
 	}
 
 	if len(req.Password) < 8 {
-		return u, NewCustomError(40003, 400, "password is not valid")
+		return u, newCustomError(40003, 400, "password is not valid")
 	}
 
 	u.Email = req.Email
@@ -96,7 +96,7 @@ func (u User) FromLogin(req Login) (User, error) {
 func (u User) ValidatePasswordFromPlainText(userLogin User) (ok bool, err error) {
 	errCompare := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(userLogin.Password))
 	if errCompare != nil {
-		return ok, NewCustomError(40102, 401, "email or password invalid")
+		return ok, newCustomError(40102, 401, "email or password invalid")
 	}
 	ok = true
 	return

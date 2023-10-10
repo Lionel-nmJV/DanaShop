@@ -12,11 +12,11 @@ import (
 
 func Test_HashPassword(t *testing.T) {
 	// Create a user with a password
-	user := NewUser()
+	user := newUser()
 	user.Password = "password123"
 
 	// Call the HashPassword function to hash the password
-	err := user.HashPassword()
+	err := user.hashPassword()
 
 	if err != nil {
 		t.Errorf("Expected no error, but got an error: %v", err)
@@ -31,13 +31,13 @@ func Test_HashPassword(t *testing.T) {
 func Test_FromRegisterToUser(t *testing.T) {
 	testCases := []struct {
 		name          string
-		inputReq      Register
+		inputReq      register
 		expectedUser  User
 		expectedError error
 	}{
 		{
 			name: "ValidRequest",
-			inputReq: Register{
+			inputReq: register{
 				Email:    "user@example.com",
 				Password: "validpass",
 			},
@@ -49,29 +49,29 @@ func Test_FromRegisterToUser(t *testing.T) {
 		},
 		{
 			name: "InvalidEmail",
-			inputReq: Register{
+			inputReq: register{
 				Email:    "invalidemail",
 				Password: "validpass",
 			},
 			expectedUser:  User{},
-			expectedError: NewCustomError(40002, 400, "email is not valid"),
+			expectedError: newCustomError(40002, 400, "email is not valid"),
 		},
 		{
 			name: "EmptyPassword",
-			inputReq: Register{
+			inputReq: register{
 				Email:    "user@example.com",
 				Password: "",
 			},
 			expectedUser:  User{},
-			expectedError: NewCustomError(40003, 400, "password is not valid"),
+			expectedError: newCustomError(40003, 400, "password is not valid"),
 		},
 		// Add more test cases for different scenarios
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			user := NewUser()
-			resultUser, err := user.FromRegisterToUser(tc.inputReq)
+			user := newUser()
+			resultUser, err := user.fromRegisterToUser(tc.inputReq)
 
 			if err != nil {
 				if tc.expectedError == nil {
@@ -91,13 +91,13 @@ func Test_FromRegisterToUser(t *testing.T) {
 func Test_FromRegisterToMerchant(t *testing.T) {
 	testCases := []struct {
 		name             string
-		inputReq         Register
+		inputReq         register
 		expectedMerchant Merchant
 		expectedError    error
 	}{
 		{
 			name: "ValidRequest",
-			inputReq: Register{
+			inputReq: register{
 				MerchantName: "Example Merchant",
 			},
 			expectedMerchant: Merchant{
@@ -107,11 +107,11 @@ func Test_FromRegisterToMerchant(t *testing.T) {
 		},
 		{
 			name: "EmptyMerchantName",
-			inputReq: Register{
+			inputReq: register{
 				MerchantName: "",
 			},
 			expectedMerchant: Merchant{},
-			expectedError:    NewCustomError(40001, 400, "invalid request"),
+			expectedError:    newCustomError(40001, 400, "invalid request"),
 		},
 	}
 
@@ -162,7 +162,7 @@ func Test_ValidatePasswordFromPlainText(t *testing.T) {
 				Password: "invalidpass",
 			},
 			expectedOk:    false,
-			expectedError: NewCustomError(40102, 401, "email or password invalid"),
+			expectedError: newCustomError(40102, 401, "email or password invalid"),
 		},
 	}
 

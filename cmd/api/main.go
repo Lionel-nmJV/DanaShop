@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"starfish/config"
 	"starfish/domain/merchant"
@@ -17,7 +18,8 @@ func main() {
 
 	err := godotenv.Load(".env")
 	if err != nil {
-		panic(err)
+		// panic(err)
+		log.Println("no env provided")
 	}
 
 	AppConfig := config.AppConfig{Port: os.Getenv("APP_PORT")}
@@ -34,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	api := server.Group("/api")
+	api := server.Group("/api/v1")
 
 	// product routes
 	product.Run(api, db)
@@ -43,7 +45,7 @@ func main() {
 	merchant.Run(api, db)
 
 	// Set up user routes
-	user.SetupRoutes(server, db)
+	user.Run(api, db)
 
 	server.Run(":" + AppConfig.Port)
 }

@@ -8,3 +8,23 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
       - POSTGRES_DB=${DB_NAME}
+    networks:
+      - postgres
+
+  starfish:
+    image: starfish:3.0
+    ports: 
+      - 127.0.0.1:8000:3000
+    environment:
+      - APP_PORT=${APP_PORT} 
+      - DB_HOST=postgres 
+      - DB_PORT=5432 
+      - DB_USER=${DB_USER} 
+      - DB_NAME=${DB_NAME} 
+      - DB_PASS=${DB_PASS} 
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge
