@@ -8,14 +8,14 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type RepoMerchant struct {
+type repoMerchant struct {
 }
 
-func NewRepoMerchant() RepoMerchant {
-	return RepoMerchant{}
+func NewRepoMerchant() repoMerchant {
+	return repoMerchant{}
 }
 
-func (r RepoMerchant) FindByUserID(ctx *gin.Context, tx *sqlx.Tx, userID string) (Merchant, error) {
+func (r repoMerchant) FindByUserID(ctx *gin.Context, tx *sqlx.Tx, userID string) (Merchant, error) {
 	SQL := `SELECT "id", "name", "image_url" FROM "merchants" WHERE "user_id"=$1`
 	rows, err := tx.QueryContext(ctx, SQL, userID)
 	if err != nil {
@@ -35,7 +35,7 @@ func (r RepoMerchant) FindByUserID(ctx *gin.Context, tx *sqlx.Tx, userID string)
 	}
 }
 
-func (r RepoMerchant) GetMerchantByUserId(ctx *gin.Context, db *sqlx.DB, userID string) (merchantResponse, error) {
+func (r repoMerchant) GetMerchantByUserId(ctx *gin.Context, db *sqlx.DB, userID string) (merchantResponse, error) {
 	SQL := `SELECT id,name,created_at,updated_at,image_url FROM "merchants" WHERE "user_id"=$1`
 
 	merchant := merchantResponse{}
@@ -44,9 +44,9 @@ func (r RepoMerchant) GetMerchantByUserId(ctx *gin.Context, db *sqlx.DB, userID 
 	if err != nil {
 		switch {
 		case err == sql.ErrNoRows:
-			return merchant, NewCustomError(40401, 404, "not found")
+			return merchant, newCustomError(40401, 404, "not found")
 		case err != nil:
-			return merchant, NewCustomError(50001, 500, "repository error")
+			return merchant, newCustomError(50001, 500, "repository error")
 		}
 	}
 	return merchant, nil

@@ -8,10 +8,10 @@ import (
 )
 
 type merchantController struct {
-	svc MerchantService
+	svc merchantService
 }
 
-func newController(svc MerchantService) merchantController {
+func newController(svc merchantService) merchantController {
 	return merchantController{
 		svc: svc,
 	}
@@ -23,7 +23,7 @@ func (u merchantController) getMerchantProfileById(c *gin.Context) {
 
 	data, err := u.svc.GetMerchantProfileById(c, userId)
 	if err != nil {
-		customErr, ok := err.(*CustomError)
+		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, customErr, 50003, http.StatusInternalServerError)
 			return

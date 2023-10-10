@@ -5,7 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Repository interface {
+type repository interface {
 	readRepository
 }
 
@@ -13,19 +13,19 @@ type readRepository interface {
 	GetMerchantByUserId(ctx *gin.Context, db *sqlx.DB, merchantID string) (merchantResponse, error)
 }
 
-type MerchantService struct {
-	repo Repository
+type merchantService struct {
+	repo repository
 	db   *sqlx.DB
 }
 
-func newService(repo Repository, db *sqlx.DB) MerchantService {
-	return MerchantService{
+func newService(repo repository, db *sqlx.DB) merchantService {
+	return merchantService{
 		repo: repo,
 		db:   db,
 	}
 }
 
-func (m MerchantService) GetMerchantProfileById(ctx *gin.Context, merchantId string) (merchant merchantResponse, err error) {
+func (m merchantService) GetMerchantProfileById(ctx *gin.Context, merchantId string) (merchant merchantResponse, err error) {
 
 	merchant, err = m.repo.GetMerchantByUserId(ctx, m.db, merchantId)
 	if err != nil {
