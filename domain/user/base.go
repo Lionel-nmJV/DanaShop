@@ -5,12 +5,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func SetupRoutes(router *gin.Engine, db *sqlx.DB) {
+func Run(router *gin.RouterGroup, db *sqlx.DB) {
 
-	repo := NewPostgres()
-	svc := NewService(repo, db)
-	ctl := NewController(svc)
+	repo := newPostgres()
+	svc := newService(repo, db)
+	ctl := newController(svc)
 
-	router.POST("/signup", ctl.SignUp)
-	router.POST("/signin", ctl.SignIn)
+	router.POST("/signup", ctl.register)
+	router.POST("/signin", ctl.login)
 }

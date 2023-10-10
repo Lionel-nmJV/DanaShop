@@ -35,13 +35,13 @@ func main() {
 		panic(err)
 	}
 
-	api := server.Group("/api")
+	api := server.Group("/api/v1")
 
 	// product routes
 	product.Run(api, db)
 
 	// Set up user routes
-	user.SetupRoutes(server, db)
+	user.Run(api, db)
 
 	server.Run(":" + AppConfig.Port)
 }
