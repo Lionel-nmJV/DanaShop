@@ -1,12 +1,12 @@
 package user
 
-type Register struct {
+type register struct {
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 	MerchantName string `json:"merchant_name"`
 }
 
-type Login struct {
+type login struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }

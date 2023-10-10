@@ -7,26 +7,26 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type Repository interface {
-	UserRepository
-	MerchantRepository
+type repository interface {
+	userRepository
+	merchantRepository
 }
 
-type UserRepository interface {
-	CreateUser(ctx context.Context, tx *sqlx.Tx, user User) (userId uuid.UUID, err error)
-	GetUserByEmail(ctx context.Context, db *sqlx.DB, email string) (user User, err error)
+type userRepository interface {
+	createUser(ctx context.Context, tx *sqlx.Tx, user User) (userId uuid.UUID, err error)
+	getUserByEmail(ctx context.Context, db *sqlx.DB, email string) (user User, err error)
 }
 
-type MerchantRepository interface {
-	CreateMerchant(ctx context.Context, tx *sqlx.Tx, merchant Merchant) (err error)
+type merchantRepository interface {
+	createMerchant(ctx context.Context, tx *sqlx.Tx, merchant Merchant) (err error)
 }
 
 type UserService struct {
-	repo Repository
+	repo repository
 	db   *sqlx.DB
 }
 
-func NewService(repo Repository, db *sqlx.DB) UserService {
+func newService(repo repository, db *sqlx.DB) UserService {
 	return UserService{
 		repo: repo,
 		db:   db,
@@ -34,7 +34,7 @@ func NewService(repo Repository, db *sqlx.DB) UserService {
 }
 
 func (u UserService) Register(ctx context.Context, user User, merchant Merchant) (err error) {
-	if err = user.HashPassword(); err != nil {
+	if err = user.hashPassword(); err != nil {
 		return
 	}
 
@@ -49,7 +49,7 @@ func (u UserService) Register(ctx context.Context, user User, merchant Merchant)
 		}
 	}()
 
-	userId, err := u.repo.CreateUser(ctx, tx, user)
+	userId, err := u.repo.createUser(ctx, tx, user)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (u UserService) Register(ctx context.Context, user User, merchant Merchant)
 		UserId: userId,
 	}
 
-	if err = u.repo.CreateMerchant(ctx, tx, newMerchant); err != nil {
+	if err = u.repo.createMerchant(ctx, tx, newMerchant); err != nil {
 		return
 	}
 
@@ -72,7 +72,7 @@ func (u UserService) Register(ctx context.Context, user User, merchant Merchant)
 
 func (u UserService) login(ctx context.Context, userLogin User) (res LoginResponse, err error) {
 
-	userDb, err := u.repo.GetUserByEmail(ctx, u.db, userLogin.Email)
+	userDb, err := u.repo.getUserByEmail(ctx, u.db, userLogin.Email)
 	if err != nil {
 		return LoginResponse{}, err
 	}

@@ -68,8 +68,8 @@ func init() {
 	}
 
 	dbSql = db
-	repo := NewPostgres()
-	svc = NewService(repo, db)
+	repo := newPostgres()
+	svc = newService(repo, db)
 }
 
 func TestService_Register(t *testing.T) {

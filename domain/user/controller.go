@@ -11,23 +11,23 @@ type userController struct {
 	svc UserService
 }
 
-func NewController(svc UserService) userController {
+func newController(svc UserService) userController {
 	return userController{
 		svc: svc,
 	}
 }
 
-func (u userController) SignUp(c *gin.Context) {
-	var request Register
+func (u userController) register(c *gin.Context) {
+	var request register
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		writeError(c, "invalid request", 40004, 400)
 		return
 	}
 
-	user, err := NewUser().FromRegisterToUser(request)
+	user, err := newUser().fromRegisterToUser(request)
 	if err != nil {
-		customErr, ok := err.(*CustomError)
+		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
@@ -41,7 +41,7 @@ func (u userController) SignUp(c *gin.Context) {
 
 	merchant, err = merchant.FromRegisterToMerchant(request)
 	if err != nil {
-		customErr, ok := err.(*CustomError)
+		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
@@ -52,7 +52,7 @@ func (u userController) SignUp(c *gin.Context) {
 	}
 
 	if err := u.svc.Register(context.Background(), user, merchant); err != nil {
-		customErr, ok := err.(*CustomError)
+		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
@@ -67,17 +67,17 @@ func (u userController) SignUp(c *gin.Context) {
 	})
 }
 
-func (u userController) SignIn(c *gin.Context) {
-	var request Login
+func (u userController) login(c *gin.Context) {
+	var request login
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		writeError(c, "invalid request", 40004, 400)
 		return
 	}
 
-	userLogin, err := NewUser().FromLogin(request)
+	userLogin, err := newUser().FromLogin(request)
 	if err != nil {
-		customErr, ok := err.(*CustomError)
+		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
@@ -89,7 +89,7 @@ func (u userController) SignIn(c *gin.Context) {
 
 	data, err := u.svc.login(context.Background(), userLogin)
 	if err != nil {
-		customErr, ok := err.(*CustomError)
+		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, "internal error", 50003, http.StatusInternalServerError)
 			return
