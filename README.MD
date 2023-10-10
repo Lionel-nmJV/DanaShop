@@ -25,7 +25,7 @@ starfish
 2. Run the command below to initialize the database container.
 
 ```
-make up
+make up-dev
 ```
 
 3. Install the `migrate` command if you haven't installed it.
