@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// Product represents the product entity.
 type Product struct {
 	ID         string    `json:"id"db:"id"`
 	MerchantID string    `json:"merchant_id"db:"merchant_id"`
