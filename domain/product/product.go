@@ -37,3 +37,23 @@ func (p Product) formAddProduct(request createRequest, validate *validator.Valid
 
 	return p, nil
 }
+
+func (p *Product) UpdateProduct(request updateRequest, validate *validator.Validate) error {
+	err := validate.Struct(request)
+	if err != nil {
+		return errors.New("invalid update request")
+	}
+
+	p.Name = request.Name
+	p.Category = request.Category
+	p.Stock = request.Stock
+	p.ImageURL = request.ImageURL
+	p.Price = request.Price
+	p.UpdatedAt = time.Now()
+
+	return nil
+}
+
+func (p *Product) DeleteProduct() {
+
+}

@@ -48,3 +48,27 @@ func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product)
 
 	return lastInsertID, nil
 }
+
+func (r repoProduct) updateProduct(ctx *gin.Context, tx *sqlx.Tx, productID string, product Product) error {
+	SQL := `UPDATE "products" SET "name"=$1, "category"=$2, "price"=$3, "stock"=$4, "image_url"=$5, "updated_at"=$6 WHERE "id"=$7`
+
+	_, err := tx.ExecContext(ctx, SQL, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.UpdatedAt, productID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r repoProduct) deleteProduct(ctx *gin.Context, tx *sqlx.Tx, productID string) error {
+	SQL := `DELETE FROM "products" WHERE "id" = $1`
+
+	_, err := tx.ExecContext(ctx, SQL, productID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

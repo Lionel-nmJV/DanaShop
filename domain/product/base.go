@@ -19,4 +19,6 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	router.Use(middleware.JWTMiddleware())
 	router.GET("/merchants/products", controller.findAllByMerchantID)
 	router.POST("/merchants/products", controller.addProduct)
+	router.PUT("/merchants/products/:id", controller.UpdateProduct)
+	router.DELETE("/merchants/products/:id", controller.DeleteProduct)
 }

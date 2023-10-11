@@ -107,7 +107,6 @@ func (service productService) addProduct(ctx *gin.Context, request Product) erro
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback()
 		}
 	}()
 
@@ -123,6 +122,49 @@ func (service productService) addProduct(ctx *gin.Context, request Product) erro
 		return err
 	}
 
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service productService) updateProduct(ctx *gin.Context, request updateRequest) error {
+
+	tx, err := service.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Commit the transaction when the update is successful.
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service productService) deleteProduct(ctx *gin.Context, productID string) error {
+
+	// Start a database transaction.
+	tx, err := service.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Commit the transaction when the deletion is successful.
 	if err := tx.Commit(); err != nil {
 		return err
 	}
