@@ -1,11 +1,12 @@
 package product
 
 import (
+	"starfish/domain/merchant"
+	"starfish/infra/middleware"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
-	"starfish/domain/merchant"
-	"starfish/infra/middleware"
 )
 
 func Run(router *gin.RouterGroup, db *sqlx.DB) {

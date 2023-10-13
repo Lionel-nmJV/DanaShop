@@ -11,6 +11,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	svc := newService(repo, db)
 	ctl := newController(svc)
 
-	router.POST("/signup", ctl.register)
-	router.POST("/signin", ctl.login)
+	authRouter := router.Group("/auth")
+	authRouter.POST("/signup", ctl.register)
+	authRouter.POST("/signin", ctl.login)
 }

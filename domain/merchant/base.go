@@ -1,6 +1,8 @@
 package merchant
 
 import (
+	"starfish/infra/middleware"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
@@ -11,5 +13,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	service := newService(repoMerchant, db)
 	controller := newController(service)
 
-	router.GET("/merchants/profile", controller.getMerchantProfileById)
+	merchantRouter := router.Group("/merchants")
+	merchantRouter.Use(middleware.JWTMiddleware())
+	merchantRouter.GET("/profile", controller.getMerchantProfileById)
 }
