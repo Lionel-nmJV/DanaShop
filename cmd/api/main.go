@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"starfish/config"
-	"starfish/domain/image"
 	"starfish/domain/merchant"
 	"starfish/domain/product"
 	"starfish/domain/user"
@@ -51,8 +50,6 @@ func main() {
 
 	// Set up user routes
 	user.Run(api, db)
-
-	image.Run(api, db)
 
 	server.Run(":" + AppConfig.Port)
 }
