@@ -146,18 +146,18 @@ func (service productService) updateProduct(ctx *gin.Context, productID string, 
 		}
 	}()
 
-	userClaims := ctx.MustGet("user").(jwt.MapClaims)
-	userID := userClaims["user_id"].(string)
-
 	// Retrieve the existing product from the database using the repository's findProductByID method.
 	existingProduct, err := service.repoProduct.findProductByID(ctx, tx, productID)
 	if err != nil {
 		return err
 	}
 
-	// Check if the user has permission to update this product (e.g., if they are the owner of the product).
-	if existingProduct.MerchantID != userID {
-		return errors.New("permission denied")
+	// Retrieve the merchantFounded ID from the context.
+	userClaims := ctx.MustGet("merchantFounded").(jwt.MapClaims)
+	merchantFoundedID := userClaims["merchantFounded_ID"].(string)
+
+	if existingProduct.MerchantID != merchantFoundedID {
+		return errors.New("Permission denied")
 	}
 
 	// Apply the update data from the request to the existing product.
