@@ -63,8 +63,20 @@ func (c productController) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
+	// You can get the product ID from the request or URL parameters.
+	productID := ctx.Param("productID")
+
+	// Create an updateRequest from the request data.
+	updateReq := updateRequest{
+		Name:     request.Name,
+		Category: request.Category,
+		Price:    request.Price,
+		Stock:    request.Stock,
+		ImageURL: request.ImageURL,
+	}
+
 	// Add logic to update the product using the service's updateProduct method.
-	err = c.service.updateProduct(ctx, request)
+	err = c.service.updateProduct(ctx, productID, updateReq)
 	if err != nil {
 		writeError(ctx, err, 40002, http.StatusBadRequest)
 		return
