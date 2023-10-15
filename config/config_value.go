@@ -11,3 +11,9 @@ type DBConfig struct {
 	Pass string
 	Name string
 }
+
+type CloudinaryConfig struct {
+	Name      string
+	APIKey    string
+	APISecret string
+}

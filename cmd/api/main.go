@@ -4,10 +4,12 @@ import (
 	"log"
 	"os"
 	"starfish/config"
+	"starfish/domain/image"
 	"starfish/domain/merchant"
 	"starfish/domain/product"
 	"starfish/domain/user"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -15,6 +17,9 @@ import (
 
 func main() {
 	server := gin.Default()
+
+	// CORS allow all origins
+	server.Use(cors.Default())
 
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -46,6 +51,8 @@ func main() {
 
 	// Set up user routes
 	user.Run(api, db)
+
+	image.Run(api, db)
 
 	server.Run(":" + AppConfig.Port)
 }
