@@ -78,7 +78,7 @@ func (c productController) UpdateProduct(ctx *gin.Context) {
 	// Add logic to update the product using the service's updateProduct method.
 	err = c.service.updateProduct(ctx, productID, updateReq)
 	if err != nil {
-		writeError(ctx, err, 40002, http.StatusBadRequest)
+		writeError(ctx, err, 40401, http.StatusNotFound)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (c productController) DeleteProduct(ctx *gin.Context) {
 	// Add logic to delete the product using the service's deleteProduct method.
 	err := c.service.deleteProduct(ctx, productID)
 	if err != nil {
-		writeError(ctx, err, 40003, http.StatusBadRequest)
+		writeError(ctx, err, 40401, http.StatusNotFound)
 		return
 	}
 

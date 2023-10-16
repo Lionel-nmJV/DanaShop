@@ -1,6 +1,7 @@
 package product
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
@@ -79,7 +80,7 @@ func (r repoProduct) findProductByID(ctx *gin.Context, tx *sqlx.Tx, productID st
 	var product Product
 	err := tx.GetContext(ctx, &product, SQL, productID)
 	if err != nil {
-		return Product{}, err
+		return Product{}, errors.New("not found")
 	}
 	return product, nil
 }
