@@ -14,7 +14,7 @@ func newRepoProduct() repoProduct {
 }
 
 func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchantID string, query string, limit interface{}, offset int) ([]productResponses, error) {
-	SQL := `SELECT "name", "category", "price", "stock", "image_url" FROM "products" WHERE "merchant_id"=$1 AND "name"  ILIKE CONCAT('%', $2::text, '%') LIMIT $3 OFFSET $4`
+	SQL := `SELECT "id", "name", "category", "price", "stock", "image_url" FROM "products" WHERE "merchant_id"=$1 AND "name"  ILIKE CONCAT('%', $2::text, '%') LIMIT $3 OFFSET $4`
 	rows, err := tx.QueryContext(ctx, SQL, merchantID, query, limit, offset)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchant
 	var products []productResponses
 	for rows.Next() {
 		product := productResponses{}
-		err := rows.Scan(&product.Name, &product.Category, &product.Price, &product.Stock, &product.ImageURL)
+		err := rows.Scan(&product.ID, &product.Name, &product.Category, &product.Price, &product.Stock, &product.ImageURL)
 		if err != nil {
 			return nil, err
 		}
