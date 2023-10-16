@@ -13,11 +13,11 @@ import (
 type productRepository interface {
 	readProductRepo
 	writeProductRepo
-	findProductByID(ctx *gin.Context, tx *sqlx.Tx, productID string) (Product, error)
 }
 
 type readProductRepo interface {
 	findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchantID string, query string, limit interface{}, offset int) ([]productResponses, error)
+	findProductByID(ctx *gin.Context, tx *sqlx.Tx, productID string) (Product, error)
 }
 
 type writeProductRepo interface {
@@ -135,6 +135,9 @@ func (service productService) addProduct(ctx *gin.Context, request Product) erro
 }
 
 func (service productService) updateProduct(ctx *gin.Context, productID string, request updateRequest) error {
+	userClaims := ctx.MustGet("user").(jwt.MapClaims)
+	userID := userClaims["user_id"].(string)
+
 	tx, err := service.db.Beginx()
 	if err != nil {
 		return err
@@ -152,11 +155,13 @@ func (service productService) updateProduct(ctx *gin.Context, productID string, 
 		return err
 	}
 
-	// Retrieve the merchantFounded ID from the context.
-	userClaims := ctx.MustGet("merchantFounded").(jwt.MapClaims)
-	merchantFoundedID := userClaims["merchantFounded_ID"].(string)
+	// Retrieve the merchantFounded ID from the DB.
+	merchantFounded, err := service.RepoMerchant.FindByUserID(ctx, tx, userID)
+	if err != nil {
+		return err
+	}
 
-	if existingProduct.MerchantID != merchantFoundedID {
+	if existingProduct.MerchantID != merchantFounded.ID {
 		return errors.New("Permission denied")
 	}
 
@@ -194,6 +199,11 @@ func (service productService) deleteProduct(ctx *gin.Context, productID string) 
 			tx.Rollback()
 		}
 	}()
+
+	_, err = service.repoProduct.findProductByID(ctx, tx, productID)
+	if err != nil {
+		return err
+	}
 
 	// Call the repository's deleteProduct method to delete the product.
 	err = service.repoProduct.deleteProduct(ctx, tx, productID)
