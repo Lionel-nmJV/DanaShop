@@ -53,3 +53,54 @@ func (c productController) addProduct(ctx *gin.Context) {
 		"message": "create success",
 	})
 }
+
+func (c productController) UpdateProduct(ctx *gin.Context) {
+	var request updateRequest
+
+	err := ctx.ShouldBindJSON(&request)
+	if err != nil {
+		writeError(ctx, errors.New("invalid update request"), 40002, http.StatusBadRequest)
+		return
+	}
+
+	// You can get the product ID from the request or URL parameters.
+	productID := ctx.Param("productID")
+
+	// Create an updateRequest from the request data.
+	updateReq := updateRequest{
+		Name:     request.Name,
+		Category: request.Category,
+		Price:    request.Price,
+		Stock:    request.Stock,
+		ImageURL: request.ImageURL,
+	}
+
+	// Add logic to update the product using the service's updateProduct method.
+	err = c.service.updateProduct(ctx, productID, updateReq)
+	if err != nil {
+		writeError(ctx, err, 40002, http.StatusBadRequest)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "update success",
+	})
+}
+
+func (c productController) DeleteProduct(ctx *gin.Context) {
+	// You can get the product ID from the request or URL parameters.
+	productID := ctx.Param("productID")
+
+	// Add logic to delete the product using the service's deleteProduct method.
+	err := c.service.deleteProduct(ctx, productID)
+	if err != nil {
+		writeError(ctx, err, 40003, http.StatusBadRequest)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "delete success",
+	})
+}
