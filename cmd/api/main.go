@@ -18,8 +18,12 @@ import (
 func main() {
 	server := gin.Default()
 
-	// CORS allow all origins
-	server.Use(cors.Default())
+	// CORS
+	server.Use(cors.New(cors.Config{
+		AllowMethods:    []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowHeaders:    []string{"Origin", "Authorization", "Content-Length", "Content-Type"},
+		AllowAllOrigins: true,
+	}))
 
 	err := godotenv.Load(".env")
 	if err != nil {
