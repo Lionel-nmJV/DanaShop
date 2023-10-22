@@ -20,7 +20,7 @@ func main() {
 
 	// CORS
 	server.Use(cors.New(cors.Config{
-		AllowMethods:    []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		AllowMethods:    []string{"GET", "POST", "PUT", "PATCH", "DELETE","OPTION"},
 		AllowHeaders:    []string{"Origin", "Authorization", "Content-Length", "Content-Type"},
 		AllowAllOrigins: true,
 	}))
