@@ -191,6 +191,8 @@ func Test_CreateToken(t *testing.T) {
 		Id: uuid.New(),
 	}
 
+	merchantId := uuid.New()
+
 	// Define a test secret key (for testing purposes)
 	secretKey := "test_secret_key"
 
@@ -199,7 +201,7 @@ func Test_CreateToken(t *testing.T) {
 	os.Setenv("SECRET_KEY", secretKey)
 	defer os.Setenv("SECRET_KEY", oldSecretKey) // Restore the original secret key after the test
 
-	tokenString, err := user.CreateToken()
+	tokenString, err := user.CreateToken(merchantId)
 
 	if err != nil {
 		t.Errorf("Expected no error, but got an error: %v", err)

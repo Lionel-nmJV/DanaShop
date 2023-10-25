@@ -102,10 +102,11 @@ func (u User) ValidatePasswordFromPlainText(userLogin User) (ok bool, err error)
 	return
 }
 
-func (u User) CreateToken() (string, error) {
+func (u User) CreateToken(merchantId uuid.UUID) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": u.Id,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"merchant_id": merchantId,
+		"user_id":     u.Id,
+		"exp":         time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
