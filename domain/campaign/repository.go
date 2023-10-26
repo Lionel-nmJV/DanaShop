@@ -51,9 +51,9 @@ func (postgres postgres) insertCampaignProducts(ctx context.Context, tx *sqlx.Tx
 
 		if pgErr, ok := err.(*pq.Error); ok {
 			if pgErr.Code == "23503" {
-				return newCustomError(42201, 422, "product id not found")
+				return newCustomError(40401, 404, "product id not found")
 			} else {
-				return err
+				return newCustomError(50001, 500, "repository error")
 			}
 		}
 	}
@@ -75,6 +75,5 @@ func (postgres postgres) updateCampaignStatus(
 	}
 
 	affected, _ := result.RowsAffected()
-
 	return affected, nil
 }

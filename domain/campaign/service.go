@@ -51,7 +51,7 @@ func (svc CampaignService) createCampaign(ctx context.Context, campaign Campaign
 	}
 
 	if err := svc.repo.insertCampaignProducts(ctx, tx, campaign); err != nil {
-		return newCustomError(50001, 500, "repository error")
+		return err
 	}
 
 	if err := tx.Commit(); err != nil {
