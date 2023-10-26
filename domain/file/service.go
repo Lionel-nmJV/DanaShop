@@ -1,4 +1,4 @@
-package image
+package file
 
 import (
 	"errors"
@@ -21,17 +21,17 @@ type ReadMerchantRepo interface {
 	FindByUserID(ctx *gin.Context, tx *sqlx.Tx, merchantID string) (merchant.Merchant, error)
 }
 
-type imageService struct {
+type fileService struct {
 	cloudinaryService *cloudinary.Cloudinary
 	RepoMerchant      MerchantRepository
 	db                *sqlx.DB
 }
 
-func newService(cloudinary *cloudinary.Cloudinary, repoMerchant MerchantRepository, db *sqlx.DB) imageService {
-	return imageService{cloudinaryService: cloudinary, RepoMerchant: repoMerchant, db: db}
+func newService(cloudinary *cloudinary.Cloudinary, repoMerchant MerchantRepository, db *sqlx.DB) fileService {
+	return fileService{cloudinaryService: cloudinary, RepoMerchant: repoMerchant, db: db}
 }
 
-func (s imageService) uploadImage(ctx *gin.Context, request Image) (string, error) {
+func (s fileService) uploadImage(ctx *gin.Context, request File) (string, error) {
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
 	userID := userClaims["user_id"].(string)
 

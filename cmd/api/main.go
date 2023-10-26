@@ -5,7 +5,7 @@ import (
 	"os"
 	"starfish/config"
 	"starfish/domain/campaign"
-	"starfish/domain/image"
+	"starfish/domain/file"
 	"starfish/domain/merchant"
 	"starfish/domain/product"
 	"starfish/domain/user"
@@ -57,7 +57,7 @@ func main() {
 	// user routes
 	user.Run(api, db)
 
-	image.Run(api, db)
+	file.Run(api, db)
 
 	// campaign routes
 	campaign.Run(api, db)
