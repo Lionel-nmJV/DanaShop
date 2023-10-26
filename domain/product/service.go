@@ -59,7 +59,7 @@ func (service productService) findAllByMerchantID(ctx *gin.Context) (paginatePro
 	offset := (page - 1) * limit
 
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
-	userID := userClaims["user_id"].(string)
+	merchantID := userClaims["merchant_id"].(string)
 
 	var responsePaginate paginateProductsResponse
 	tx, err := service.db.Beginx()
@@ -73,14 +73,9 @@ func (service productService) findAllByMerchantID(ctx *gin.Context) (paginatePro
 		}
 	}()
 
-	merchantFounded, err := service.RepoMerchant.FindByUserID(ctx, tx, userID)
-	if err != nil {
-		return responsePaginate, err
-	}
+	products, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantID, query, limit, offset)
 
-	products, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantFounded.ID, query, limit, offset)
-
-	allProducts, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantFounded.ID, "", nil, 0)
+	allProducts, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantID, "", nil, 0)
 
 	if err := tx.Commit(); err != nil {
 		return responsePaginate, err
