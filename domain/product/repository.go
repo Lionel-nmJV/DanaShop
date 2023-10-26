@@ -76,7 +76,7 @@ func (r repoProduct) deleteProduct(ctx *gin.Context, tx *sqlx.Tx, productID stri
 }
 
 func (r repoProduct) findProductByID(ctx *gin.Context, tx *sqlx.Tx, productID string) (Product, error) {
-	SQL := `SELECT "id", "merchant_id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at" FROM "products" WHERE "id" = $1`
+	SQL := `SELECT "id", "merchant_id", "name", "category", "price", "stock", "image_url", "weight", "threshold", "is_new", "description", "created_at", "updated_at" FROM "products" WHERE "id" = $1`
 	var product Product
 	err := tx.GetContext(ctx, &product, SQL, productID)
 	if err != nil {

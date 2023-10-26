@@ -134,6 +134,44 @@ func (service productService) addProduct(ctx *gin.Context, request Product) erro
 	return nil
 }
 
+func (service productService) findByID(ctx *gin.Context, productID string) (productResponses, error) {
+	tx, err := service.db.Beginx()
+	if err != nil {
+		return productResponses{}, err
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+
+	product, err := service.repoProduct.findProductByID(ctx, tx, productID)
+	if err != nil {
+		return productResponses{}, err
+	}
+
+	productResponse := productResponses{
+		ID:          product.ID,
+		Name:        product.Name,
+		Category:    product.Category,
+		Price:       product.Price,
+		Stock:       product.Stock,
+		ImageURL:    product.ImageURL,
+		Weight:      product.Weight,
+		Threshold:   product.Threshold,
+		IsNew:       product.IsNew,
+		Description: product.Description,
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
+	}
+
+	if err := tx.Commit(); err != nil {
+		return productResponses{}, err
+	}
+
+	return productResponse, nil
+}
+
 func (service productService) updateProduct(ctx *gin.Context, productID string, request Product) error {
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
 	merchantID := userClaims["merchant_id"].(string)
