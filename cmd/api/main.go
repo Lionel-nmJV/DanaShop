@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"starfish/config"
+	"starfish/domain/campaign"
 	"starfish/domain/image"
 	"starfish/domain/merchant"
 	"starfish/domain/product"
@@ -53,10 +54,13 @@ func main() {
 	// merchant routes
 	merchant.Run(api, db)
 
-	// Set up user routes
+	// user routes
 	user.Run(api, db)
 
 	image.Run(api, db)
+
+	// campaign routes
+	campaign.Run(api, db)
 
 	server.Run(":" + AppConfig.Port)
 }

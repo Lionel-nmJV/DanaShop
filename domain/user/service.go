@@ -19,6 +19,7 @@ type userRepository interface {
 
 type merchantRepository interface {
 	createMerchant(ctx context.Context, tx *sqlx.Tx, merchant Merchant) (err error)
+	getMerchantIdByUserId(ctx context.Context, db *sqlx.DB, userId uuid.UUID) (uuid.UUID, error)
 }
 
 type UserService struct {
@@ -82,7 +83,12 @@ func (u UserService) login(ctx context.Context, userLogin User) (res LoginRespon
 		return LoginResponse{}, err
 	}
 
-	AccessToken, errToken := userDb.CreateToken()
+	merchantId, err := u.repo.getMerchantIdByUserId(ctx, u.db, userDb.Id)
+	if err != nil {
+		return LoginResponse{}, err
+	}
+
+	AccessToken, errToken := userDb.CreateToken(merchantId)
 	if err != nil {
 		return LoginResponse{}, errToken
 	}

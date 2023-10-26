@@ -63,3 +63,14 @@ func (p postgres) getUserByEmail(ctx context.Context, db *sqlx.DB, email string)
 	}
 	return user, nil
 }
+
+func (p postgres) getMerchantIdByUserId(ctx context.Context, db *sqlx.DB, userId uuid.UUID) (uuid.UUID, error) {
+	SQL := `SELECT id FROM merchants WHERE user_id = $1 `
+	var merchantId uuid.UUID
+	err := db.QueryRowContext(ctx, SQL, userId).
+		Scan(&merchantId)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+	return merchantId, nil
+}
