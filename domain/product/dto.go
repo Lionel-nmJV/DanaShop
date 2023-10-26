@@ -22,11 +22,15 @@ type productResponses struct {
 }
 
 type createRequest struct {
-	Name     string  `json:"name"validate:"required"`
-	Category string  `json:"category"validate:"required"`
-	Stock    int     `json:"stock"validate:"required"`
-	ImageURL string  `json:"image_url"validate:"required"`
-	Price    float64 `json:"price"validate:"required"`
+	Name        string  `json:"name"validate:"required"`
+	Category    string  `json:"category"validate:"required"`
+	Stock       int     `json:"stock"validate:"required"`
+	ImageURL    string  `json:"image_url"validate:"required"`
+	Price       float64 `json:"price"validate:"required"`
+	Weight      int     `json:"weight"validate:"required"`
+	Threshold   int     `json:"threshold"validate:"required"`
+	IsNew       bool    `json:"is_new"validate:"required"`
+	Description string  `json:"description"validate:"required"`
 }
 
 // Request structure for updating a product

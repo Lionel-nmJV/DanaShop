@@ -36,9 +36,9 @@ func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchant
 }
 
 func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product) (string, error) {
-	SQL := `INSERT INTO "products"("merchant_id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	SQL := `INSERT INTO "products"("merchant_id", "name", "category", "price", "stock", "image_url", "weight", "threshold", "is_new", "description", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`
 	var lastInsertID string
-	result := tx.QueryRowContext(ctx, SQL, product.MerchantID, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.CreatedAt, product.UpdatedAt)
+	result := tx.QueryRowContext(ctx, SQL, product.MerchantID, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.Weight, product.Threshold, product.IsNew, product.Description, product.CreatedAt, product.UpdatedAt)
 
 	err := result.Scan(&lastInsertID)
 	if err != nil {
