@@ -1,4 +1,4 @@
-package image
+package file
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	controller := newController(service, validate)
 
 	// protected route
-	imageRouter := router.Group("/files")
-	imageRouter.Use((middleware.JWTMiddleware()))
-	imageRouter.POST("/upload", controller.uploadFile)
+	fileRouter := router.Group("/files")
+	fileRouter.Use((middleware.JWTMiddleware()))
+	fileRouter.POST("/upload", controller.uploadFile)
 }

@@ -1,4 +1,4 @@
-package image
+package file
 
 import (
 	"errors"
@@ -9,19 +9,19 @@ import (
 	"strings"
 )
 
-type imageController struct {
-	service  imageService
+type fileController struct {
+	service  fileService
 	validate *validator.Validate
 }
 
-func newController(service imageService, validate *validator.Validate) imageController {
-	return imageController{
+func newController(service fileService, validate *validator.Validate) fileController {
+	return fileController{
 		service:  service,
 		validate: validate,
 	}
 }
 
-func (c imageController) uploadFile(ctx *gin.Context) {
+func (c fileController) uploadFile(ctx *gin.Context) {
 	fileHeader, err := ctx.FormFile("file")
 	if err != nil {
 		writeError(ctx, errors.New("invalid request"), 40001, http.StatusBadRequest)
@@ -37,13 +37,19 @@ func (c imageController) uploadFile(ctx *gin.Context) {
 	fileExt := filepath.Ext(fileHeader.Filename)
 	fileExt = strings.TrimPrefix(fileExt, ".")
 
-	request := requestUploadImage{
+	request := requestUploadFile{
 		File: fileHeader,
 		Type: typeImage,
 		Ext:  fileExt,
 	}
 
 	image, err := NewImage().formUploadImage(request, c.validate)
+	if err != nil {
+		writeError(ctx, err, 40002, http.StatusBadRequest)
+		return
+	}
+
+	err = NewImage().validateSize(request)
 	if err != nil {
 		writeError(ctx, err, 40002, http.StatusBadRequest)
 		return
