@@ -59,24 +59,21 @@ func (c productController) UpdateProduct(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&request)
 	if err != nil {
-		writeError(ctx, errors.New("invalid update request"), 40002, http.StatusBadRequest)
+		writeError(ctx, errors.New("invalid request"), 40002, http.StatusBadRequest)
+		return
+	}
+
+	product, err := NewProduct().formUpdateProduct(request, c.validate)
+	if err != nil {
+		writeError(ctx, err, 40001, http.StatusBadRequest)
 		return
 	}
 
 	// You can get the product ID from the request or URL parameters.
 	productID := ctx.Param("productID")
 
-	// Create an updateRequest from the request data.
-	updateReq := updateRequest{
-		Name:     request.Name,
-		Category: request.Category,
-		Price:    request.Price,
-		Stock:    request.Stock,
-		ImageURL: request.ImageURL,
-	}
-
 	// Add logic to update the product using the service's updateProduct method.
-	err = c.service.updateProduct(ctx, productID, updateReq)
+	err = c.service.updateProduct(ctx, productID, product)
 	if err != nil {
 		writeError(ctx, err, 40401, http.StatusNotFound)
 		return

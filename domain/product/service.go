@@ -134,9 +134,9 @@ func (service productService) addProduct(ctx *gin.Context, request Product) erro
 	return nil
 }
 
-func (service productService) updateProduct(ctx *gin.Context, productID string, request updateRequest) error {
+func (service productService) updateProduct(ctx *gin.Context, productID string, request Product) error {
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
-	userID := userClaims["user_id"].(string)
+	merchantID := userClaims["merchant_id"].(string)
 
 	tx, err := service.db.Beginx()
 	if err != nil {
@@ -155,13 +155,7 @@ func (service productService) updateProduct(ctx *gin.Context, productID string, 
 		return err
 	}
 
-	// Retrieve the merchantFounded ID from the DB.
-	merchantFounded, err := service.RepoMerchant.FindByUserID(ctx, tx, userID)
-	if err != nil {
-		return err
-	}
-
-	if existingProduct.MerchantID != merchantFounded.ID {
+	if existingProduct.MerchantID != merchantID {
 		return errors.New("Permission denied")
 	}
 
@@ -171,6 +165,10 @@ func (service productService) updateProduct(ctx *gin.Context, productID string, 
 	existingProduct.Price = request.Price
 	existingProduct.Stock = request.Stock
 	existingProduct.ImageURL = request.ImageURL
+	existingProduct.Weight = request.Weight
+	existingProduct.Threshold = request.Threshold
+	existingProduct.IsNew = request.IsNew
+	existingProduct.Description = request.Description
 	existingProduct.UpdatedAt = time.Now() // Update the "updated_at" timestamp.
 
 	// Update the product in the database using the repository's updateProduct method.

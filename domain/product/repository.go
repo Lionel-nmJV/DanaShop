@@ -52,9 +52,9 @@ func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product)
 
 func (r repoProduct) updateProduct(ctx *gin.Context, tx *sqlx.Tx, productID string, product Product) error {
 	SQL := `UPDATE "products" SET "name"=$1, "category"=$2, "price"=$3, 
-                      "stock"=$4, "image_url"=$5, "updated_at"=$6 WHERE "id"=$7`
+                      "stock"=$4, "image_url"=$5, "weight"=$6, "threshold"=$7, "is_new"=$8, "description"=$9, "updated_at"=$10 WHERE "id"=$11`
 
-	_, err := tx.ExecContext(ctx, SQL, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.UpdatedAt, productID)
+	_, err := tx.ExecContext(ctx, SQL, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.Weight, product.Threshold, product.IsNew, product.Description, product.UpdatedAt, productID)
 
 	if err != nil {
 		return err
