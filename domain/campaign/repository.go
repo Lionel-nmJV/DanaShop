@@ -77,3 +77,55 @@ func (postgres postgres) updateCampaignStatus(
 	affected, _ := result.RowsAffected()
 	return affected, nil
 }
+
+func (postgres postgres) findAllCampaigns(ctx context.Context, db *sqlx.DB, merchantID string, query string, limit int, offset int) ([]campaign, error) {
+	querySQL := `SELECT
+					campaigns.id,
+					campaigns.name,
+					campaigns.description,
+					campaigns.start_date,
+					campaigns.end_date,
+					campaigns.video_url,
+					COUNT(campaigns_products.product_id) AS total_product
+				FROM
+					campaigns
+				JOIN
+					campaigns_products
+				ON
+					campaigns.id = campaigns_products.campaign_id
+				WHERE 
+					campaigns.merchant_id = $1
+				AND 
+					campaigns.name  ILIKE CONCAT('%', $2::text, '%')
+				GROUP BY
+					campaigns.id
+				LIMIT $3 OFFSET $4	
+				`
+
+	rows, err := db.QueryContext(ctx, querySQL, merchantID, query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var campaigns []campaign
+	for rows.Next() {
+		campaign := campaign{}
+		err := rows.Scan(
+			&campaign.Id,
+			&campaign.Name,
+			&campaign.Description,
+			&campaign.StartDate,
+			&campaign.EndDate,
+			&campaign.VideoUrl,
+			&campaign.TotalProduct)
+		if err != nil {
+			return nil, err
+		}
+
+		campaigns = append(campaigns, campaign)
+	}
+
+	return campaigns, nil
+}

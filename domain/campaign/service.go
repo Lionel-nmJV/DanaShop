@@ -9,12 +9,17 @@ import (
 
 type repository interface {
 	writeRepository
+	readRepository
 }
 
 type writeRepository interface {
 	insertCampaign(ctx context.Context, tx *sqlx.Tx, campaign Campaign) (uuid.UUID, error)
 	insertCampaignProducts(ctx context.Context, tx *sqlx.Tx, campaign Campaign) error
 	updateCampaignStatus(ctx context.Context, db *sqlx.DB, isActive bool, campaginId uuid.UUID, merchantId uuid.UUID) (int64, error)
+}
+
+type readRepository interface {
+	findAllCampaigns(ctx context.Context, db *sqlx.DB, merchantID string, query string, limit int, offset int) ([]campaign, error)
 }
 
 type CampaignService struct {
@@ -69,4 +74,18 @@ func (svc CampaignService) deactivateCampaign(ctx context.Context, campaginId uu
 		return rowsUpdated, newCustomError(50001, 500, "repository error")
 	}
 	return rowsUpdated, nil
+}
+
+func (svc CampaignService) findAllCampaigns(ctx context.Context, query string, merchantId string, limit int, offset int) (getCampaignsResponse, error) {
+	campaigns, err := svc.repo.findAllCampaigns(ctx, svc.db, merchantId, query, limit, offset)
+
+	if err != nil {
+		return getCampaignsResponse{}, newCustomError(50001, 500, "repository error")
+	}
+
+	if len(campaigns) == 0 {
+		return getCampaignsResponse{}, newCustomError(40401, 404, "campaigns not found")
+	}
+
+	return getCampaignsResponse{campaigns}, nil
 }

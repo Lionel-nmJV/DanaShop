@@ -3,6 +3,7 @@ package campaign
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -82,4 +83,36 @@ func (ctl campaignController) deactivateCampaign(ctx *gin.Context) {
 		})
 	}
 
+}
+
+func (ctl campaignController) findAllCampaigns(ctx *gin.Context) {
+	query := ctx.Query("query")
+	pageString := ctx.Query("page")
+	limitString := ctx.Query("limit")
+	page, err := strconv.Atoi(pageString)
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(limitString)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+	userClaims := ctx.MustGet("user").(jwt.MapClaims)
+	merchantId := userClaims["merchant_id"].(string)
+
+	result, err := ctl.svc.findAllCampaigns(context.Background(), query, merchantId, limit, offset)
+
+	if err != nil {
+		customErr, ok := err.(*customError)
+		if !ok {
+			writeError(ctx, "internal error", 50003, http.StatusInternalServerError)
+			return
+		}
+		writeError(ctx, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
+		return
+	}
+
+	writeSuccess(ctx, result, http.StatusOK)
 }
