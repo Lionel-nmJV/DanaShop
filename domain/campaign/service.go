@@ -14,6 +14,7 @@ type repository interface {
 type writeRepository interface {
 	insertCampaign(ctx context.Context, tx *sqlx.Tx, campaign Campaign) (uuid.UUID, error)
 	insertCampaignProducts(ctx context.Context, tx *sqlx.Tx, campaign Campaign) error
+	updateCampaignStatus(ctx context.Context, db *sqlx.DB, isActive bool, campaginId uuid.UUID, merchantId uuid.UUID) (int64, error)
 }
 
 type CampaignService struct {
@@ -42,7 +43,6 @@ func (svc CampaignService) createCampaign(ctx context.Context, campaign Campaign
 
 	campaginId, err := svc.repo.insertCampaign(ctx, tx, campaign)
 	if err != nil {
-
 		return newCustomError(50001, 500, "repository error")
 	}
 
@@ -51,7 +51,7 @@ func (svc CampaignService) createCampaign(ctx context.Context, campaign Campaign
 	}
 
 	if err := svc.repo.insertCampaignProducts(ctx, tx, campaign); err != nil {
-		return err
+		return newCustomError(50001, 500, "repository error")
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -60,4 +60,13 @@ func (svc CampaignService) createCampaign(ctx context.Context, campaign Campaign
 
 	return nil
 
+}
+
+func (svc CampaignService) deactivateCampaign(ctx context.Context, campaginId uuid.UUID, merchantId uuid.UUID) (int64, error) {
+
+	rowsUpdated, err := svc.repo.updateCampaignStatus(ctx, svc.db, false, campaginId, merchantId)
+	if err != nil {
+		return rowsUpdated, newCustomError(50001, 500, "repository error")
+	}
+	return rowsUpdated, nil
 }

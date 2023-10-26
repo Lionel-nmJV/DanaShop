@@ -57,3 +57,29 @@ func (ctl campaignController) createCampaign(ctx *gin.Context) {
 	})
 
 }
+
+func (ctl campaignController) deactivateCampaign(ctx *gin.Context) {
+	userClaims := ctx.MustGet("user").(jwt.MapClaims)
+	merchantId := uuid.MustParse(userClaims["merchant_id"].(string))
+	campaignId := uuid.MustParse(ctx.Param("campaign_id"))
+	rowsUpdated, err := ctl.svc.deactivateCampaign(context.Background(), campaignId, merchantId)
+	if err != nil {
+		customErr, ok := err.(*customError)
+		if !ok {
+			writeError(ctx, "internal error", 50003, http.StatusInternalServerError)
+			return
+		}
+		writeError(ctx, customErr.Message, customErr.ErrorCode, customErr.StatusCode)
+		return
+	}
+
+	if rowsUpdated == 0 {
+		ctx.JSON(http.StatusNoContent, gin.H{})
+	} else {
+		ctx.JSON(http.StatusCreated, gin.H{
+			"success":  true,
+			"messages": "campaign has been deactivated",
+		})
+	}
+
+}
