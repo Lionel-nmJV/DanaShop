@@ -21,7 +21,7 @@ func (f File) formUploadImage(request requestUploadFile, validate *validator.Val
 		return f, errors.New("invalid request")
 	}
 
-	if request.Type != "campaign" && request.Ext == "mp4" {
+	if request.Type != "campaign" && request.Ext == "mp4" || request.Type == "campaign" && request.Ext != "mp4" {
 		return f, errors.New("invalid request")
 	}
 
