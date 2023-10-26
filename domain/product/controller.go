@@ -54,6 +54,18 @@ func (c productController) addProduct(ctx *gin.Context) {
 	})
 }
 
+func (c productController) findByID(ctx *gin.Context) {
+	productID := ctx.Param("productID")
+
+	product, err := c.service.findByID(ctx, productID)
+	if err != nil {
+		writeError(ctx, errors.New("not found"), 40401, http.StatusNotFound)
+		return
+	}
+
+	writeSuccess(ctx, product, http.StatusOK)
+}
+
 func (c productController) UpdateProduct(ctx *gin.Context) {
 	var request updateRequest
 

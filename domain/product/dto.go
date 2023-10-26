@@ -1,5 +1,7 @@
 package product
 
+import "time"
+
 type paginateProductsResponse struct {
 	Products   []productResponses `json:"products"`
 	Pagination pagination         `json:"pagination"`
@@ -13,12 +15,18 @@ type pagination struct {
 }
 
 type productResponses struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	Category string  `json:"category"`
-	Price    float64 `json:"price"`
-	Stock    int     `json:"stock"`
-	ImageURL string  `json:"image_url"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Category    string    `json:"category"`
+	Price       float64   `json:"price"`
+	Stock       int       `json:"stock"`
+	ImageURL    string    `json:"image_url"`
+	Weight      int       `json:"weight"`
+	Threshold   int       `json:"threshold"`
+	IsNew       bool      `json:"is_new"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type createRequest struct {
