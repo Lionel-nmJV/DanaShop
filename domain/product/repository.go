@@ -14,7 +14,7 @@ func newRepoProduct() repoProduct {
 }
 
 func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchantID string, query string, limit interface{}, offset int) ([]productResponses, error) {
-	SQL := `SELECT "id", "name", "category", "price", "stock", "image_url" FROM "products" WHERE "merchant_id"=$1 AND "name"  ILIKE CONCAT('%', $2::text, '%') LIMIT $3 OFFSET $4`
+	SQL := `SELECT "id", "name", "category", "price", "stock", "image_url", "weight", "threshold", "is_new", "description", "created_at", "updated_at" FROM "products" WHERE "merchant_id"=$1 AND "name"  ILIKE CONCAT('%', $2::text, '%') LIMIT $3 OFFSET $4`
 	rows, err := tx.QueryContext(ctx, SQL, merchantID, query, limit, offset)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchant
 	var products []productResponses
 	for rows.Next() {
 		product := productResponses{}
-		err := rows.Scan(&product.ID, &product.Name, &product.Category, &product.Price, &product.Stock, &product.ImageURL)
+		err := rows.Scan(&product.ID, &product.Name, &product.Category, &product.Price, &product.Stock, &product.ImageURL, &product.Weight, &product.Threshold, &product.IsNew, &product.Description, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -36,9 +36,9 @@ func (r repoProduct) findAllByMerchantID(ctx *gin.Context, tx *sqlx.Tx, merchant
 }
 
 func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product) (string, error) {
-	SQL := `INSERT INTO "products"("merchant_id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	SQL := `INSERT INTO "products"("merchant_id", "name", "category", "price", "stock", "image_url", "weight", "threshold", "is_new", "description", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`
 	var lastInsertID string
-	result := tx.QueryRowContext(ctx, SQL, product.MerchantID, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.CreatedAt, product.UpdatedAt)
+	result := tx.QueryRowContext(ctx, SQL, product.MerchantID, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.Weight, product.Threshold, product.IsNew, product.Description, product.CreatedAt, product.UpdatedAt)
 
 	err := result.Scan(&lastInsertID)
 	if err != nil {
@@ -52,9 +52,9 @@ func (r repoProduct) saveProduct(ctx *gin.Context, tx *sqlx.Tx, product Product)
 
 func (r repoProduct) updateProduct(ctx *gin.Context, tx *sqlx.Tx, productID string, product Product) error {
 	SQL := `UPDATE "products" SET "name"=$1, "category"=$2, "price"=$3, 
-                      "stock"=$4, "image_url"=$5, "updated_at"=$6 WHERE "id"=$7`
+                      "stock"=$4, "image_url"=$5, "weight"=$6, "threshold"=$7, "is_new"=$8, "description"=$9, "updated_at"=$10 WHERE "id"=$11`
 
-	_, err := tx.ExecContext(ctx, SQL, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.UpdatedAt, productID)
+	_, err := tx.ExecContext(ctx, SQL, product.Name, product.Category, product.Price, product.Stock, product.ImageURL, product.Weight, product.Threshold, product.IsNew, product.Description, product.UpdatedAt, productID)
 
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (r repoProduct) deleteProduct(ctx *gin.Context, tx *sqlx.Tx, productID stri
 }
 
 func (r repoProduct) findProductByID(ctx *gin.Context, tx *sqlx.Tx, productID string) (Product, error) {
-	SQL := `SELECT "id", "merchant_id", "name", "category", "price", "stock", "image_url", "created_at", "updated_at" FROM "products" WHERE "id" = $1`
+	SQL := `SELECT "id", "merchant_id", "name", "category", "price", "stock", "image_url", "weight", "threshold", "is_new", "description", "created_at", "updated_at" FROM "products" WHERE "id" = $1`
 	var product Product
 	err := tx.GetContext(ctx, &product, SQL, productID)
 	if err != nil {

@@ -59,7 +59,7 @@ func (service productService) findAllByMerchantID(ctx *gin.Context) (paginatePro
 	offset := (page - 1) * limit
 
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
-	userID := userClaims["user_id"].(string)
+	merchantID := userClaims["merchant_id"].(string)
 
 	var responsePaginate paginateProductsResponse
 	tx, err := service.db.Beginx()
@@ -73,14 +73,9 @@ func (service productService) findAllByMerchantID(ctx *gin.Context) (paginatePro
 		}
 	}()
 
-	merchantFounded, err := service.RepoMerchant.FindByUserID(ctx, tx, userID)
-	if err != nil {
-		return responsePaginate, err
-	}
+	products, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantID, query, limit, offset)
 
-	products, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantFounded.ID, query, limit, offset)
-
-	allProducts, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantFounded.ID, "", nil, 0)
+	allProducts, err := service.repoProduct.findAllByMerchantID(ctx, tx, merchantID, "", nil, 0)
 
 	if err := tx.Commit(); err != nil {
 		return responsePaginate, err
@@ -134,9 +129,47 @@ func (service productService) addProduct(ctx *gin.Context, request Product) erro
 	return nil
 }
 
-func (service productService) updateProduct(ctx *gin.Context, productID string, request updateRequest) error {
+func (service productService) findByID(ctx *gin.Context, productID string) (productResponses, error) {
+	tx, err := service.db.Beginx()
+	if err != nil {
+		return productResponses{}, err
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+
+	product, err := service.repoProduct.findProductByID(ctx, tx, productID)
+	if err != nil {
+		return productResponses{}, err
+	}
+
+	productResponse := productResponses{
+		ID:          product.ID,
+		Name:        product.Name,
+		Category:    product.Category,
+		Price:       product.Price,
+		Stock:       product.Stock,
+		ImageURL:    product.ImageURL,
+		Weight:      product.Weight,
+		Threshold:   product.Threshold,
+		IsNew:       product.IsNew,
+		Description: product.Description,
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
+	}
+
+	if err := tx.Commit(); err != nil {
+		return productResponses{}, err
+	}
+
+	return productResponse, nil
+}
+
+func (service productService) updateProduct(ctx *gin.Context, productID string, request Product) error {
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
-	userID := userClaims["user_id"].(string)
+	merchantID := userClaims["merchant_id"].(string)
 
 	tx, err := service.db.Beginx()
 	if err != nil {
@@ -155,13 +188,7 @@ func (service productService) updateProduct(ctx *gin.Context, productID string, 
 		return err
 	}
 
-	// Retrieve the merchantFounded ID from the DB.
-	merchantFounded, err := service.RepoMerchant.FindByUserID(ctx, tx, userID)
-	if err != nil {
-		return err
-	}
-
-	if existingProduct.MerchantID != merchantFounded.ID {
+	if existingProduct.MerchantID != merchantID {
 		return errors.New("Permission denied")
 	}
 
@@ -171,6 +198,10 @@ func (service productService) updateProduct(ctx *gin.Context, productID string, 
 	existingProduct.Price = request.Price
 	existingProduct.Stock = request.Stock
 	existingProduct.ImageURL = request.ImageURL
+	existingProduct.Weight = request.Weight
+	existingProduct.Threshold = request.Threshold
+	existingProduct.IsNew = request.IsNew
+	existingProduct.Description = request.Description
 	existingProduct.UpdatedAt = time.Now() // Update the "updated_at" timestamp.
 
 	// Update the product in the database using the repository's updateProduct method.
