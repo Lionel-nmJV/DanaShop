@@ -1,6 +1,8 @@
 package campaign
 
-import "time"
+import (
+	"time"
+)
 
 type createRequest struct {
 	Name        string    `json:"name" validate:"required"`
