@@ -16,4 +16,6 @@ type CloudinaryConfig struct {
 	Name      string
 	APIKey    string
 	APISecret string
+	ImageSize string
+	VideoSize string
 }

@@ -6,18 +6,21 @@ import (
 	"github.com/go-playground/validator/v10"
 	"net/http"
 	"path/filepath"
+	"starfish/config"
 	"strings"
 )
 
 type fileController struct {
 	service  fileService
 	validate *validator.Validate
+	config   config.CloudinaryConfig
 }
 
-func newController(service fileService, validate *validator.Validate) fileController {
+func newController(service fileService, validate *validator.Validate, config config.CloudinaryConfig) fileController {
 	return fileController{
 		service:  service,
 		validate: validate,
+		config:   config,
 	}
 }
 
@@ -43,13 +46,13 @@ func (c fileController) uploadFile(ctx *gin.Context) {
 		Ext:  fileExt,
 	}
 
-	image, err := NewImage().formUploadImage(request, c.validate)
+	image, err := NewFile().formUploadImage(request, c.validate)
 	if err != nil {
 		writeError(ctx, err, 40002, http.StatusBadRequest)
 		return
 	}
 
-	err = NewImage().validateSize(request)
+	err = NewFile().validateSize(request, c.config)
 	if err != nil {
 		writeError(ctx, err, 40002, http.StatusBadRequest)
 		return

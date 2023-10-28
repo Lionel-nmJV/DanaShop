@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/go-playground/validator/v10"
 	"mime/multipart"
+	"starfish/config"
+	"strconv"
 )
 
 type File struct {
@@ -11,7 +13,7 @@ type File struct {
 	Type string                `json:"type"validation:"required"`
 }
 
-func NewImage() File {
+func NewFile() File {
 	return File{}
 }
 
@@ -31,10 +33,19 @@ func (f File) formUploadImage(request requestUploadFile, validate *validator.Val
 	return f, nil
 }
 
-func (f File) validateSize(request requestUploadFile) error {
-	if request.Ext == "mp4" && request.File.Size > (int64(5)*1024*1024) {
+func (f File) validateSize(request requestUploadFile, config config.CloudinaryConfig) error {
+	imageSize, err := strconv.Atoi(config.ImageSize)
+	if err != nil {
 		return errors.New("invalid request")
-	} else if request.Ext != "mp4" && request.File.Size > (int64(1)*1024*1024) {
+	}
+	videoSize, err := strconv.Atoi(config.VideoSize)
+	if err != nil {
+		return errors.New("invalid request")
+	}
+
+	if request.Ext == "mp4" && request.File.Size > (int64(videoSize)*1024*1024) {
+		return errors.New("invalid request")
+	} else if request.Ext != "mp4" && request.File.Size > (int64(imageSize)*1024*1024) {
 		return errors.New("invalid request")
 	}
 	return nil
