@@ -23,8 +23,10 @@ func (postgres postgres) insertCampaign(ctx context.Context, tx *sqlx.Tx, campai
 				"end_date",
 				"video_url",
 				"description",
-				"created_at") 
-				VALUES ($1, $2, $3, $4, $5, $6, NOW()) returning id `
+				"created_at",
+				"thumbnail_url"
+				) 
+				VALUES ($1, $2, $3, $4, $5, $6, NOW(),$7) returning id `
 
 	var campaignId uuid.UUID
 	if err := tx.QueryRowContext(
@@ -35,7 +37,8 @@ func (postgres postgres) insertCampaign(ctx context.Context, tx *sqlx.Tx, campai
 		campaign.StartDate,
 		campaign.EndDate,
 		campaign.VideoUrl,
-		campaign.Description).
+		campaign.Description,
+		campaign.ThumbnailUrl).
 		Scan(&campaignId); err != nil {
 		return uuid.UUID{}, err
 	}
@@ -78,7 +81,7 @@ func (postgres postgres) updateCampaignStatus(
 	return affected, nil
 }
 
-func (postgres postgres) findAllCampaigns(ctx context.Context, db *sqlx.DB, merchantID string, query string, limit int, offset int) ([]campaign, error) {
+func (postgres postgres) findAllCampaigns(ctx context.Context, db *sqlx.DB, merchantID string, query string, limit interface{}, offset int) ([]campaign, error) {
 	querySQL := `SELECT
 					campaigns.id,
 					campaigns.name,
@@ -86,6 +89,7 @@ func (postgres postgres) findAllCampaigns(ctx context.Context, db *sqlx.DB, merc
 					campaigns.start_date,
 					campaigns.end_date,
 					campaigns.video_url,
+					campaigns.is_active,
 					COUNT(campaigns_products.product_id) AS total_product
 				FROM
 					campaigns
@@ -119,6 +123,7 @@ func (postgres postgres) findAllCampaigns(ctx context.Context, db *sqlx.DB, merc
 			&campaign.StartDate,
 			&campaign.EndDate,
 			&campaign.VideoUrl,
+			&campaign.IsActive,
 			&campaign.TotalProduct)
 		if err != nil {
 			return nil, err

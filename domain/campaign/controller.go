@@ -102,7 +102,7 @@ func (ctl campaignController) findAllCampaigns(ctx *gin.Context) {
 	userClaims := ctx.MustGet("user").(jwt.MapClaims)
 	merchantId := userClaims["merchant_id"].(string)
 
-	result, err := ctl.svc.findAllCampaigns(context.Background(), query, merchantId, limit, offset)
+	result, totalCampaign, err := ctl.svc.findAllCampaigns(context.Background(), query, merchantId, limit, offset)
 
 	if err != nil {
 		customErr, ok := err.(*customError)
@@ -114,5 +114,15 @@ func (ctl campaignController) findAllCampaigns(ctx *gin.Context) {
 		return
 	}
 
-	writeSuccess(ctx, result, http.StatusOK)
+	response := getCampaignsResponse{
+		result,
+		pagination{
+			Page:       page,
+			PerPage:    limit,
+			TotalPages: (totalCampaign + limit - 1) / limit,
+			TotalItems: totalCampaign,
+		},
+	}
+
+	writeSuccess(ctx, response, http.StatusOK)
 }
