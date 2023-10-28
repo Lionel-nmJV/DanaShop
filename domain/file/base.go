@@ -26,6 +26,8 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 		Name:      os.Getenv("CLOUDY_NAME"),
 		APIKey:    os.Getenv("CLOUDY_API_KEY"),
 		APISecret: os.Getenv("CLOUDY_API_SECRET"),
+		ImageSize: os.Getenv("CLOUDY_IMAGE_SIZE"),
+		VideoSize: os.Getenv("CLOUDY_VIDEO_SIZE"),
 	}
 
 	CLOUDINARY_URL := fmt.Sprintf("cloudinary://%s:%s@%s", cloudinaryConfig.APIKey, cloudinaryConfig.APISecret, cloudinaryConfig.Name)
@@ -38,7 +40,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	validate := validator.New()
 	repoMerchant := merchant.NewRepoMerchant()
 	service := newService(cloudinaryService, repoMerchant, db)
-	controller := newController(service, validate)
+	controller := newController(service, validate, cloudinaryConfig)
 
 	// protected route
 	fileRouter := router.Group("/files")
