@@ -24,9 +24,10 @@ func (postgres postgres) insertCampaign(ctx context.Context, tx *sqlx.Tx, campai
 				"video_url",
 				"description",
 				"created_at",
+				"updated_at",
 				"thumbnail_url"
 				) 
-				VALUES ($1, $2, $3, $4, $5, $6, NOW(),$7) returning id `
+				VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), $7) returning id `
 
 	var campaignId uuid.UUID
 	if err := tx.QueryRowContext(
