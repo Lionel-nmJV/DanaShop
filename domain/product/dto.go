@@ -37,7 +37,7 @@ type createRequest struct {
 	Price       float64 `json:"price"validate:"required"`
 	Weight      int     `json:"weight"validate:"required"`
 	Threshold   int     `json:"threshold"validate:"required"`
-	IsNew       bool    `json:"is_new"validate:"required"`
+	IsNew       bool    `json:"is_new"validate:"boolean"`
 	Description string  `json:"description"validate:"required"`
 }
 
@@ -50,7 +50,7 @@ type updateRequest struct {
 	Price       float64 `json:"price" validate:"required"`
 	Weight      int     `json:"weight"validate:"required"`
 	Threshold   int     `json:"threshold"validate:"required"`
-	IsNew       bool    `json:"is_new"validate:"required"`
+	IsNew       bool    `json:"is_new"validate:"boolean"`
 	Description string  `json:"description"validate:"required"`
 }
 
