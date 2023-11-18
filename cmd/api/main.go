@@ -7,6 +7,7 @@ import (
 	"starfish/domain/campaign"
 	"starfish/domain/file"
 	"starfish/domain/merchant"
+	"starfish/domain/order"
 	"starfish/domain/product"
 	"starfish/domain/user"
 
@@ -61,6 +62,9 @@ func main() {
 
 	// campaign routes
 	campaign.Run(api, db)
+
+	// order routes
+	order.Run(api, db)
 
 	server.Run(":" + AppConfig.Port)
 }
