@@ -12,10 +12,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	repoMerchant := NewRepoMerchant()
 	validate := validator.New()
 
-	repoOrder := NewOrderRepository()
-	repoAnalytics := NewAnalyticsRepository()
-
-	service := newService(repoMerchant, repoOrder, db, repoAnalytics)
+	service := newService(repoMerchant, db)
 	controller := newController(service, validate)
 
 	merchantRouter := router.Group("/merchants")

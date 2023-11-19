@@ -3,7 +3,6 @@ package merchant
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -103,7 +102,6 @@ func (r repoMerchant) GetMerchantAnalytics(ctx *gin.Context, db *sqlx.DB, mercha
 	)
 
 	if err != nil {
-		fmt.Println(err.Error())
 		return Analytics{}, err
 	}
 
