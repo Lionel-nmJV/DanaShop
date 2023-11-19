@@ -1,9 +1,10 @@
 package order
 
 import (
+	"starfish/infra/middleware"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"starfish/infra/middleware"
 )
 
 func Run(router *gin.RouterGroup, db *sqlx.DB) {
@@ -12,7 +13,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	controller := newController(service)
 
 	// protected route
-	orderRouter := router.Group("/merchants")
+	orderRouter := router.Group("/orders")
 	orderRouter.Use((middleware.JWTMiddleware()))
-	orderRouter.GET("/orders", controller.findAllByMerchantID)
+	orderRouter.GET("/", controller.findAllByMerchantID)
 }

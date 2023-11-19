@@ -4,12 +4,12 @@ import (
 	"log"
 	"os"
 	"starfish/config"
+	"starfish/domain/auth"
 	"starfish/domain/campaign"
 	"starfish/domain/file"
 	"starfish/domain/merchant"
 	"starfish/domain/order"
 	"starfish/domain/product"
-	"starfish/domain/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -56,7 +56,7 @@ func main() {
 	merchant.Run(api, db)
 
 	// user routes
-	user.Run(api, db)
+	auth.Run(api, db)
 
 	file.Run(api, db)
 
