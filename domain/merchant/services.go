@@ -7,10 +7,15 @@ import (
 
 type repository interface {
 	readRepository
+	writeRepository
 }
 
 type readRepository interface {
-	GetMerchantByUserId(ctx *gin.Context, db *sqlx.DB, merchantID string) (merchantResponse, error)
+	getMerchantByUserId(ctx *gin.Context, db *sqlx.DB, merchantID string) (merchantResponse, error)
+}
+
+type writeRepository interface {
+	updateMerchantByUserId(ctx *gin.Context, db *sqlx.DB, userID string, merchant Merchant) (bool, error)
 }
 
 type merchantService struct {
@@ -25,12 +30,20 @@ func newService(repo repository, db *sqlx.DB) merchantService {
 	}
 }
 
-func (m merchantService) GetMerchantProfileById(ctx *gin.Context, merchantId string) (merchant merchantResponse, err error) {
+func (svc merchantService) getMerchantProfileById(ctx *gin.Context, userId string) (merchant merchantResponse, err error) {
 
-	merchant, err = m.repo.GetMerchantByUserId(ctx, m.db, merchantId)
+	merchant, err = svc.repo.getMerchantByUserId(ctx, svc.db, userId)
 	if err != nil {
 		return merchantResponse{}, err
 	}
-
 	return merchant, nil
+}
+
+func (svc merchantService) updateMerchantProfileById(ctx *gin.Context, userId string, merchant Merchant) (bool, error) {
+
+	ok, err := svc.repo.updateMerchantByUserId(ctx, svc.db, userId, merchant)
+	if err != nil {
+		return false, err
+	}
+	return ok, nil
 }
