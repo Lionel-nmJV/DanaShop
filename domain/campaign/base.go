@@ -14,9 +14,9 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	service := newService(repo, db)
 	controller := newController(service, validate)
 
-	campaignRouter := router.Group("/merchants")
+	campaignRouter := router.Group("/campaigns")
 	campaignRouter.Use(middleware.JWTMiddleware())
-	campaignRouter.POST("/campaigns", controller.createCampaign)
-	campaignRouter.PATCH("/campaigns/:campaign_id", controller.deactivateCampaign)
-	campaignRouter.GET("/campaigns", controller.findAllCampaigns)
+	campaignRouter.POST("/", controller.createCampaign)
+	campaignRouter.PATCH("/:campaign_id", controller.deactivateCampaign)
+	campaignRouter.GET("/", controller.findAllCampaigns)
 }

@@ -1,4 +1,4 @@
-package user
+package auth
 
 type customError struct {
 	ErrorCode  int
