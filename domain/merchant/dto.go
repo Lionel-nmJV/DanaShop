@@ -18,3 +18,12 @@ type updateRequest struct {
 	FocusOn  string `json:"focus_on" validate:"required"`
 	Address  string `json:"address" validate:"required"`
 }
+
+type Analytics struct {
+	TotalPrice              int `json:"total_price"`
+	TotalProductSold        int `json:"total_product_sold"`
+	TotalDiscount           int `json:"total_discount"`
+	TotalTransactionPending int `json:"total_transaction_pending"`
+	TotalTransactionSuccess int `json:"total_transaction_success"`
+	TotalTransactionFail    int `json:"total_transaction_fail"`
+}

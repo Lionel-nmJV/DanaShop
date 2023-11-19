@@ -12,11 +12,15 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	repoMerchant := NewRepoMerchant()
 	validate := validator.New()
 
-	service := newService(repoMerchant, db)
+	repoOrder := NewOrderRepository()
+	repoAnalytics := NewAnalyticsRepository()
+
+	service := newService(repoMerchant, repoOrder, db, repoAnalytics)
 	controller := newController(service, validate)
 
 	merchantRouter := router.Group("/merchants")
 	merchantRouter.Use(middleware.JWTMiddleware())
 	merchantRouter.GET("/profile", controller.getMerchantProfileById)
 	merchantRouter.PUT("/profile", controller.updateMerchantProfileById)
+	merchantRouter.GET("/analytics", controller.getMerchantAnalytics)
 }

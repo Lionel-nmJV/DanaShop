@@ -83,5 +83,16 @@ func (ctl merchantController) updateMerchantProfileById(c *gin.Context) {
 			"messages": "merchants profile updated",
 		})
 	}
+}
 
+func (u merchantController) getMerchantAnalytics(c *gin.Context) {
+	userClaims := c.MustGet("user").(jwt.MapClaims)
+	merchantID := userClaims["merchant_id"].(string)
+	analytics, err := u.svc.GetMerchantAnalytics(c, merchantID)
+	if err != nil {
+		writeError(c, err, 50001, http.StatusInternalServerError) // ganti aja cuma contoh
+		return
+	}
+
+	writeSuccess(c, analytics, http.StatusOK)
 }

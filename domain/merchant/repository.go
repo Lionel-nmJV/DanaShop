@@ -3,6 +3,7 @@ package merchant
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -75,4 +76,36 @@ func (repo repoMerchant) updateMerchantByUserId(ctx *gin.Context, db *sqlx.DB, u
 	}
 
 	return true, nil
+}
+
+func (r repoMerchant) GetMerchantAnalytics(ctx *gin.Context, db *sqlx.DB, merchantID string) (Analytics, error) {
+	var analytics Analytics
+
+	query := `
+        SELECT 
+            COALESCE(SUM(total_price), 0) AS total_price,
+            COALESCE(SUM(quantity), 0) AS total_product_sold,
+            COALESCE(SUM(total_discount), 0) AS total_discount,
+            COALESCE(COUNT(*) FILTER (WHERE status = 'pending'), 0) AS total_transaction_pending,
+            COALESCE(COUNT(*) FILTER (WHERE status = 'success'), 0) AS total_transaction_success,
+            COALESCE(COUNT(*) FILTER (WHERE status = 'failed'), 0) AS total_transaction_fail
+        FROM orders
+        WHERE merchant_id = $1
+    `
+
+	err := db.QueryRowContext(ctx, query, merchantID).Scan(
+		&analytics.TotalPrice,
+		&analytics.TotalProductSold,
+		&analytics.TotalDiscount,
+		&analytics.TotalTransactionPending,
+		&analytics.TotalTransactionSuccess,
+		&analytics.TotalTransactionFail,
+	)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return Analytics{}, err
+	}
+
+	return analytics, nil
 }
