@@ -77,7 +77,7 @@ func (ctl campaignController) deactivateCampaign(ctx *gin.Context) {
 	if rowsUpdated == 0 {
 		ctx.JSON(http.StatusNoContent, gin.H{})
 	} else {
-		ctx.JSON(http.StatusCreated, gin.H{
+		ctx.JSON(http.StatusOK, gin.H{
 			"success":  true,
 			"messages": "campaign has been deactivated",
 		})
