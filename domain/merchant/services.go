@@ -20,32 +20,14 @@ type writeRepository interface {
 }
 
 type merchantService struct {
-	repo          repository
-	db            *sqlx.DB
-	orderRepo     orderRepository     // Tambahkan field orderRepo
-	analyticsRepo analyticsRepository // Tambahkan field analyticsRepo
+	repo repository
+	db   *sqlx.DB
 }
 
-type orderRepository struct {
-}
-
-type analyticsRepository struct {
-}
-
-func NewAnalyticsRepository() analyticsRepository {
-	return analyticsRepository{}
-}
-
-func NewOrderRepository() orderRepository {
-	return orderRepository{}
-}
-
-func newService(repo repository, orderRepo orderRepository, db *sqlx.DB, analyticsRepo analyticsRepository) merchantService {
+func newService(repo repository, db *sqlx.DB) merchantService {
 	return merchantService{
-		repo:          repo,
-		db:            db,
-		orderRepo:     orderRepo,     // Initialize orderRepo
-		analyticsRepo: analyticsRepo, // Initialize analyticsRepo
+		repo: repo,
+		db:   db,
 	}
 }
 
@@ -68,7 +50,6 @@ func (svc merchantService) updateMerchantProfileById(ctx *gin.Context, userId st
 }
 
 func (m merchantService) GetMerchantAnalytics(ctx *gin.Context, merchantID string) (Analytics, error) {
-	// Lakukan logika untuk mengambil analitik pesanan dari repository
 	analytics, err := m.repo.GetMerchantAnalytics(ctx, m.db, merchantID)
 	if err != nil {
 		return Analytics{}, err

@@ -2,7 +2,6 @@ package merchant
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,7 +52,6 @@ func (ctl merchantController) updateMerchantProfileById(c *gin.Context) {
 
 	merchant, err := newMerchant().fromRequest(req, ctl.validate)
 	if err != nil {
-		fmt.Println(err)
 		customErr, ok := err.(*customError)
 		if !ok {
 			writeError(c, errors.New("invalid request"), 40001, 400)
@@ -63,8 +61,6 @@ func (ctl merchantController) updateMerchantProfileById(c *gin.Context) {
 		return
 
 	}
-
-	fmt.Println("merchant ctl after valid :", merchant)
 
 	ok, err := ctl.svc.updateMerchantProfileById(c, userId, merchant)
 	if err != nil {
@@ -90,7 +86,7 @@ func (u merchantController) getMerchantAnalytics(c *gin.Context) {
 	merchantID := userClaims["merchant_id"].(string)
 	analytics, err := u.svc.GetMerchantAnalytics(c, merchantID)
 	if err != nil {
-		writeError(c, err, 50001, http.StatusInternalServerError) // ganti aja cuma contoh
+		writeError(c, err, 50001, http.StatusInternalServerError)
 		return
 	}
 

@@ -8,8 +8,8 @@ type merchantResponse struct {
 	ImageURL  string    `json:"image_url"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	FocusOn   string    `json:"focus_on"`
-	Address   string    `json:"address"`
+	FocusOn   *string   `json:"focus_on"`
+	Address   *string   `json:"address"`
 }
 
 type updateRequest struct {
