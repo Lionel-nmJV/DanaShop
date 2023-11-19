@@ -36,7 +36,7 @@ func (u merchantController) getMerchantProfileById(c *gin.Context) {
 }
 
 func (u merchantController) getMerchantAnalytics(c *gin.Context) {
-	merchantID := "merchant_id_example" // Ganti dengan logika untuk mendapatkan ID merchant, ini cuma contoh
+	merchantID := "merchant_id_example" // Ganti aja ID merchant
 	analytics, err := u.svc.GetMerchantAnalytics(c, merchantID)
 	if err != nil {
 		writeError(c, err, 50001, http.StatusInternalServerError) // ganti aja cuma contoh
