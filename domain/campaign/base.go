@@ -16,7 +16,7 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 
 	campaignRouter := router.Group("/campaigns")
 	campaignRouter.Use(middleware.JWTMiddleware())
-	campaignRouter.POST("/", controller.createCampaign)
+	campaignRouter.POST("", controller.createCampaign)
 	campaignRouter.PATCH("/:campaign_id", controller.deactivateCampaign)
-	campaignRouter.GET("/", controller.findAllCampaigns)
+	campaignRouter.GET("", controller.findAllCampaigns)
 }

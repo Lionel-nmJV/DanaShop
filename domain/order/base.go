@@ -15,5 +15,5 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	// protected route
 	orderRouter := router.Group("/orders")
 	orderRouter.Use((middleware.JWTMiddleware()))
-	orderRouter.GET("/", controller.findAllByMerchantID)
+	orderRouter.GET("", controller.findAllByMerchantID)
 }

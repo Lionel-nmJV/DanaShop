@@ -20,8 +20,8 @@ func Run(router *gin.RouterGroup, db *sqlx.DB) {
 	// protected route
 	productRouter := router.Group("/products")
 	productRouter.Use((middleware.JWTMiddleware()))
-	productRouter.GET("/", controller.findAllByMerchantID)
-	productRouter.POST("/", controller.addProduct)
+	productRouter.GET("", controller.findAllByMerchantID)
+	productRouter.POST("", controller.addProduct)
 	productRouter.GET("/:productID", controller.findByID)
 	productRouter.PUT("/:productID", controller.UpdateProduct)
 	productRouter.DELETE("/:productID", controller.DeleteProduct)
